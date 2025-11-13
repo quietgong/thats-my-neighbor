@@ -28,6 +28,7 @@ function initMap() {
 }
 
 async function fetchOtherUsersLocations() {
+  // 다른 유저들의 GPS 정보를 가져오는 API 호출
   try {
     const response = await fetch(`${API_BASE_URL}/locations`)
     if (!response.ok) throw new Error("Failed to fetch locations")
@@ -46,6 +47,7 @@ async function fetchOtherUsersLocations() {
 }
 
 async function uploadCurrentLocation() {
+  // 현재 유저의 GPS 정보를 업로드하는 API 호출
   if (!isSharing || !currentUser) return
 
   try {
