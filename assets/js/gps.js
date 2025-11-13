@@ -2,11 +2,11 @@ let map;
 const userMarkers = new Map();
 const currentUser = {"id": "", "lat": CENTER_LAT, "lng": CENTER_LNG, "accuracy": 0};
 
-const API_BASE_URL = "http://115.20.193.140:8888/api" // 실제 서버 URL로 변경 필요
+const API_BASE_URL = "https://rnd.api-plinqer.com/api" // 실제 서버 URL로 변경 필요
 const UPDATE_INTERVAL = 3000 // 3초마다 위치 업데이트
 
 async function initMap() {
-    currentUser.id = getUserId();
+    currentUser["id"] = getUserId();
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
     navigator.geolocation.watchPosition(handlePosition, handleError, {enableHighAccuracy: true});
 }
@@ -31,8 +31,13 @@ function handleError(error) {
     console.error("위치 정보를 가져오는 데 실패했습니다.", error);
 }
 
+function getLocalStorage(key) {
+    const data = JSON.parse(localStorage.getItem(key));
+    return data ? data.value : null;
+}
+
 function getUserId() {
-    const getUserId = JSON.parse(localStorage.getItem("userId"));
+    const getUserId = getLocalStorage("userId");
     if (getUserId) {
         return getUserId;
     } else {
@@ -84,57 +89,34 @@ function updateUserMarker(user) {
 // APIs
 async function fetchOtherUsersLocations() {
     // 다른 유저들의 GPS 정보를 가져오는 API 호출
-    const users = [
-        {
-            "id": "a",
-            "lat": 35.109753,
-            "lng": 128.942376
-        },
-        {
-            "id": "b",
-            "lat": 35.109537,
-            "lng": 128.943379
-        },
-    ];
-    console.log("[v0] Fetched users:", users)
+    try {
+        const response = await axios.get(`${API_BASE_URL}/locations`);
+        const users = await response.data["data"];
+        console.log("[v0] Fetched users:", users)
 
-    users.forEach((user) => {
-        if (user.id !== currentUser.id) {
-            updateUserMarker(user);
-        }
-    });
-
-    // try {
-    //     const response = await axios.get(`${API_BASE_URL}/locations`);
-    //     const users = await response.json()
-    //     console.log("[v0] Fetched users:", users)
-    //
-    //     users.forEach((user) => {
-    //         if (user.id !== currentUser.id) {
-    //             updateUserMarker(user);
-    //         }
-    //     })
-    // } catch (error) {
-    //     console.error("[v0] Error fetching user locations:", error)
-    // }
+        users.forEach((user) => {
+            if (user.id !== currentUser.id) {
+                updateUserMarker(user);
+            }
+        })
+    } catch (error) {
+        console.error("[v0] Error fetching user locations:", error)
+    }
 }
 
 async function uploadMyCurrentLocation() {
-    return null;
-    // try {
-    //     const url = "";
-    //     const data = {
-    //         id: currentUser.id,
-    //         lat: currentUser.lat,
-    //         lng: currentUser.lng,
-    //         accuracy: currentUser.accuracy,
-    //         timestamp: new Date().toISOString(),
-    //     }
-    //     await axios.post(url, data);
-    //     console.log("[v0] Location uploaded successfully")
-    // } catch (error) {
-    //     console.error("[v0] Error uploading location:", error)
-    // }
+    try {
+        const url = `${API_BASE_URL}/locations`;
+        const data = {
+            userId: currentUser.id,
+            latitude: currentUser.lat,
+            longitude: currentUser.lng
+        }
+        await axios.post(url, data);
+        console.log("[v0] Location uploaded successfully")
+    } catch (error) {
+        console.error("[v0] Error uploading location:", error)
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
