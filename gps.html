@@ -1,67 +1,28 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>That's my neighbor</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>That's my neighbor</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h1>위치 공유</h1>
-    </div>
-
-    <div class="user-section">
-      <div class="form-group">
-        <label for="username">사용자 이름</label>
-        <div class="name-input-wrapper">
-          <input
-                  type="text"
-                  id="username"
-                  placeholder="이름을 입력하세요"
-                  class="name-input"
-          >
-        </div>
-      </div>
-
-      <div class="button-group">
-        <button id="startBtn" class="btn btn-primary">위치 공유 시작</button>
-        <button id="stopBtn" class="btn btn-danger" style="display: none;">위치 공유 중지</button>
-      </div>
-
-      <div id="status" class="status" style="display: none;">
-        <div class="status-dot"></div>
-        <span>위치 공유 중...</span>
-      </div>
-    </div>
-
-    <div class="coordinates-section">
-      <h3>현재 위치</h3>
-      <div class="coordinate">
-        <span class="label">위도:</span>
-        <span id="lat" class="value">-</span>
-      </div>
-      <div class="coordinate">
-        <span class="label">경도:</span>
-        <span id="lng" class="value">-</span>
-      </div>
-      <div class="coordinate">
-        <span class="label">정확도:</span>
-        <span id="accuracy" class="value">-</span>
-      </div>
-    </div>
-
-    <div class="users-section">
-      <h3>온라인 사용자</h3>
-      <div id="userList" class="user-list"></div>
-    </div>
-  </div>
-
-  <div id="map" class="map"></div>
+    <h3>현재 위치</h3>
+    <span class="label">위도:</span>
+    <p id="lat" class="value">-</p>
+    <span class="label">경도:</span>
+    <p id="lng" class="value">-</p>
+    <span class="label">정확도:</span>
+    <p id="accuracy" class="value">-</p>
 </div>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&v=weekly"></script>
-<script src="app.js"></script>
+
+<div id="map" class="map"></div>
+
+<script src="assets/js/axios.js"></script>
+<script src="assets/js/map-style.js"></script>
+<script src="assets/js/gps.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
 </body>
 </html>
