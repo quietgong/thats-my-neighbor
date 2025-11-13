@@ -8,6 +8,26 @@ const UPDATE_INTERVAL = 3000 // 3초마다 위치 업데이트
 async function initMap() {
     currentUser["id"] = getUserId();
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    const floorPlanBounds = new google.maps.LatLngBounds(
+        // 남서쪽(SW)
+        {lat: 35.109113, lng: 128.942246},
+        // 북동쪽(NE)
+        {lat: 35.109255, lng: 128.942564}
+    );
+    // 2) GroundOverlay로 도면 이미지 올리기
+    const floorPlanOverlay = new google.maps.GroundOverlay(
+        "assets/img/map.png",
+        floorPlanBounds,
+        {
+            opacity: 0.3
+        }
+    );
+
+    floorPlanOverlay.setMap(map);
+    map.fitBounds(floorPlanBounds);
+    drawArtWorkMarker()
+
     navigator.geolocation.watchPosition(handlePosition, handleError, {enableHighAccuracy: true});
 }
 
@@ -29,6 +49,40 @@ async function handlePosition(position) {
 
 function handleError(error) {
     console.error("위치 정보를 가져오는 데 실패했습니다.", error);
+}
+
+function drawArtWorkMarker() {
+    const artworks = [
+        {
+            name: "조각 A",
+            position: {lat: 35.109113, lng: 128.942246},
+            imageUrl: "assets/img/artwork.png",
+            description: "금속 재질의 현대 조각 작품입니다.",
+        },
+        {
+            name: "회화 B",
+            position: {lat: 35.109255, lng: 128.942564},
+            imageUrl: "assets/img/artwork.png",
+            description: "추상적인 색감의 회화 작품입니다.",
+        },
+    ];
+
+    artworks.forEach((item) => {
+        const marker = new google.maps.Marker({
+            position: item.position,
+            map,
+            title: item.name,
+            icon: item.imageUrl,
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: `<h3>${item.name}</h3><p>${item.description}</p>`,
+        });
+
+        marker.addListener("click", () => {
+            infoWindow.open(map, marker);
+        });
+    });
 }
 
 function getLocalStorage(key) {
