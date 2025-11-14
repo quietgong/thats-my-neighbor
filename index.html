@@ -1,11 +1,113 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>That's my neighbor</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>That's my neighbor - Exhibition Space</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
+  <div class="container">
+    <!-- Header with logo and info button -->
+    <header class="header">
+      <h1 class="logo" onclick="location.href=`gps.html`">That's my neighbor</h1>
+      <button class="info-btn" aria-label="Information">
+        <span class="info-icon">ⓘ</span>
+      </button>
+    </header>
+
+    <!-- Horizontal scrolling exhibition space -->
+    <div class="scroll-wrapper">
+      <div class="exhibition-space" id="exhibitionSpace">
+        <!-- Spiral structures in center -->
+        <div class="artwork spiral" style="left: 50%; top: 30%;" data-title="Spiral Structure" data-type="installation">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Spiral</div>
+        </div>
+
+        <!-- Sand images on floor -->
+        <div class="artwork sand" style="left: 20%; top: 60%;" data-title="Sand Breeze" data-type="floor-element">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Sand</div>
+        </div>
+
+        <div class="artwork sand" style="left: 75%; top: 65%;" data-title="Natural Elements" data-type="floor-element">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Nature</div>
+        </div>
+
+        <!-- Video installations -->
+        <div class="artwork video" style="left: 15%; top: 25%;" data-title="Motion Art Video" data-type="video">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Video</div>
+        </div>
+
+        <div class="artwork video" style="left: 85%; top: 35%;" data-title="Abstract Video Art" data-type="video">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Video</div>
+        </div>
+
+        <!-- Sound visualization -->
+        <div class="artwork sound" style="left: 40%; top: 50%;" data-title="Sound Waves" data-type="audio">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Sound</div>
+        </div>
+
+        <!-- Publications -->
+        <div class="artwork publication" style="left: 60%; top: 20%;" data-title="Publications" data-type="publication">
+          <img src="assets/img/artwork.png">
+          <div class="artwork-label">Publication</div>
+        </div>
+
+        <!-- Center pillar/focal point -->
+        <div class="artwork pillar" style="left: 50%; top: 50%;" data-title="Center Focal Point" data-type="installation">
+          <div class="pillar-element"></div>
+          <div class="artwork-label">Center</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal" id="infoModal">
+      <div class="modal-content">
+        <button class="modal-close" aria-label="Close">&times;</button>
+        <div class="modal-scroll">
+          <div class="modal-header">
+            <h2>That's my neighbor</h2>
+          </div>
+          <div class="modal-section">
+            <h3>About</h3>
+            <p>An immersive 16m × 16m exhibition installation exploring spatial relationships and multimedia art.</p>
+          </div>
+          <div class="modal-section">
+            <h3>Credits</h3>
+            <p>Artist: [Artist Name]<br>
+            Curated by: [Curator Name]<br>
+            Year: 2024</p>
+          </div>
+          <div class="modal-section">
+            <h3>Artworks</h3>
+            <ul>
+              <li><strong>Spiral Structures:</strong> Geometric installation at the center</li>
+              <li><strong>Sand Breeze:</strong> Floor-level natural elements</li>
+              <li><strong>Sound Waves:</strong> Audio visualization component</li>
+              <li><strong>Video Installations:</strong> Motion art and contemporary video</li>
+              <li><strong>Publications:</strong> Accompanying documentation and materials</li>
+            </ul>
+          </div>
+          <div class="modal-section">
+            <h3>Navigation</h3>
+            <p>Scroll horizontally to explore the 16m × 16m space. Hover over artworks to reveal titles and descriptions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicators -->
+    <div class="scroll-indicator left" id="scrollLeft">←</div>
+    <div class="scroll-indicator right" id="scrollRight">→</div>
+  </div>
+
+  <script src="assets/js/index.js"></script>
 </body>
 </html>
