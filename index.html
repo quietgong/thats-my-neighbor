@@ -1,113 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>That's my neighbor - Exhibition Space</title>
-  <link rel="stylesheet" href="index.css">
+  <title>That's my neighbor</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <!-- Header with logo and info button -->
-    <header class="header">
-      <h1 class="logo" onclick="location.href=`gps.html`">That's my neighbor</h1>
-      <button class="info-btn" aria-label="Information">
-        <span class="info-icon">ⓘ</span>
-      </button>
-    </header>
-
-    <!-- Horizontal scrolling exhibition space -->
-    <div class="scroll-wrapper">
-      <div class="exhibition-space" id="exhibitionSpace">
-        <!-- Spiral structures in center -->
-        <div class="artwork spiral" style="left: 50%; top: 30%;" data-title="Spiral Structure" data-type="installation">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Spiral</div>
-        </div>
-
-        <!-- Sand images on floor -->
-        <div class="artwork sand" style="left: 20%; top: 60%;" data-title="Sand Breeze" data-type="floor-element">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Sand</div>
-        </div>
-
-        <div class="artwork sand" style="left: 75%; top: 65%;" data-title="Natural Elements" data-type="floor-element">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Nature</div>
-        </div>
-
-        <!-- Video installations -->
-        <div class="artwork video" style="left: 15%; top: 25%;" data-title="Motion Art Video" data-type="video">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Video</div>
-        </div>
-
-        <div class="artwork video" style="left: 85%; top: 35%;" data-title="Abstract Video Art" data-type="video">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Video</div>
-        </div>
-
-        <!-- Sound visualization -->
-        <div class="artwork sound" style="left: 40%; top: 50%;" data-title="Sound Waves" data-type="audio">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Sound</div>
-        </div>
-
-        <!-- Publications -->
-        <div class="artwork publication" style="left: 60%; top: 20%;" data-title="Publications" data-type="publication">
-          <img src="assets/img/artwork.png">
-          <div class="artwork-label">Publication</div>
-        </div>
-
-        <!-- Center pillar/focal point -->
-        <div class="artwork pillar" style="left: 50%; top: 50%;" data-title="Center Focal Point" data-type="installation">
-          <div class="pillar-element"></div>
-          <div class="artwork-label">Center</div>
-        </div>
+<!-- 메인 컨테이너 -->
+<div class="container">
+  <!-- 지도 섹션 -->
+  <section class="map-section">
+    <!-- Goolgle Map -->
+    <div id="map" class="map-iframe"></div>
+    <!-- 헤더 오버레이 (로고 및 INFO 버튼이 지도 위에 겹침) -->
+    <div class="header-overlay">
+      <!-- 로고 -->
+      <div class="logo-container">
+        <img src="/assets/img/logo.png" alt="전시회 로고" class="logo">
       </div>
+      <!-- INFO 버튼 -->
+      <button class="info-btn" id="infoBtn" aria-label="정보 보기">INFO</button>
     </div>
+  </section>
+</div>
 
-    <!-- Info Modal -->
-    <div class="modal" id="infoModal">
-      <div class="modal-content">
-        <button class="modal-close" aria-label="Close">&times;</button>
-        <div class="modal-scroll">
-          <div class="modal-header">
-            <h2>That's my neighbor</h2>
-          </div>
-          <div class="modal-section">
-            <h3>About</h3>
-            <p>An immersive 16m × 16m exhibition installation exploring spatial relationships and multimedia art.</p>
-          </div>
-          <div class="modal-section">
-            <h3>Credits</h3>
-            <p>Artist: [Artist Name]<br>
-            Curated by: [Curator Name]<br>
-            Year: 2024</p>
-          </div>
-          <div class="modal-section">
-            <h3>Artworks</h3>
-            <ul>
-              <li><strong>Spiral Structures:</strong> Geometric installation at the center</li>
-              <li><strong>Sand Breeze:</strong> Floor-level natural elements</li>
-              <li><strong>Sound Waves:</strong> Audio visualization component</li>
-              <li><strong>Video Installations:</strong> Motion art and contemporary video</li>
-              <li><strong>Publications:</strong> Accompanying documentation and materials</li>
-            </ul>
-          </div>
-          <div class="modal-section">
-            <h3>Navigation</h3>
-            <p>Scroll horizontally to explore the 16m × 16m space. Hover over artworks to reveal titles and descriptions.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scroll indicators -->
-    <div class="scroll-indicator left" id="scrollLeft">←</div>
-    <div class="scroll-indicator right" id="scrollRight">→</div>
+<!-- 안내 모달 (초기 로딩 시) -->
+<div class="modal" id="instructionModal">
+  <div class="modal-content modal-content-center">
+    <button class="modal-close" id="closeInstruction" aria-label="닫기">&times;</button>
+    <h2>전시회 관람 안내</h2>
+    <p>좌우로 스와이프하여 전시 공간을 탐색해보세요.</p>
+    <p>화살표 버튼이나 키보드 화살표 키를 사용할 수 있습니다.</p>
+    <p>우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요.</p>
+    <button class="modal-btn" id="startBtn">시작하기</button>
   </div>
+</div>
 
-  <script src="assets/js/index.js"></script>
+<!-- INFO 모달 -->
+<div class="modal" id="infoModal">
+  <div class="modal-content modal-content-scrollable">
+    <button class="modal-close" id="closeInfo" aria-label="닫기">&times;</button>
+    <div class="modal-body">
+      <!-- 로고 -->
+      <div class="info-logo">
+        <img src="/assets/img/logo.png" alt="전시회 로고">
+      </div>
+
+      <!-- 작품 정보 -->
+      <div class="info-section">
+        <h3>작품 정보</h3>
+        <p><strong>제목:</strong> 현대 미술 전시회</p>
+        <p><strong>기간:</strong> 2024년 1월 - 12월</p>
+        <p><strong>장소:</strong> 서울시 중구 전시관</p>
+      </div>
+
+      <!-- 크레딧 -->
+      <div class="info-section">
+        <h3>신용 정보</h3>
+        <p><strong>큐레이터:</strong> 홍길동</p>
+        <p><strong>아티스트:</strong> 김영희, 이순신</p>
+        <p><strong>후원:</strong> OO 문화 재단</p>
+      </div>
+
+      <!-- 상세 설명 -->
+      <div class="info-section">
+        <h3>전시회 설명</h3>
+        <p>이 전시회는 현대 미술의 다양한 표현 방식을 소개합니다. 디지털 기술과 전통 예술의 융합을 통해 새로운 감성적 경험을 제공합니다.</p>
+      </div>
+
+      <!-- 문의 정보 -->
+      <div class="info-section">
+        <h3>문의</h3>
+        <p><strong>전화:</strong> 02-1234-5678</p>
+        <p><strong>이메일:</strong> info@exhibition.com</p>
+        <p><strong>웹사이트:</strong> www.exhibition.com</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/layout.js"></script> <!-- 디자인 레이아웃 JS -->
+<script src="assets/js/library/axios.js"></script> <!-- axios 라이브러리 -->
+<script src="assets/js/map-style.js"></script> <!-- 구글맵 지도 스타일 설정 -->
+<script src="assets/js/gps.js"></script> <!-- GPS 설정 -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
 </body>
 </html>
