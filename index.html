@@ -12,7 +12,7 @@
   <!-- 지도 섹션 -->
   <section class="map-section">
     <!-- Goolgle Map -->
-    <div id="map" class="map-iframe"></div>
+    <div id="map"></div>
     <!-- 헤더 오버레이 (로고 및 INFO 버튼이 지도 위에 겹침) -->
     <div class="header-overlay">
       <!-- 로고 -->
@@ -20,7 +20,7 @@
         <img src="assets/img/logo.png" alt="전시회 로고" class="logo">
       </div>
       <!-- INFO 버튼 -->
-      <button class="info-btn" id="infoBtn" aria-label="정보 보기">INFO</button>
+      <button class="info-btn" id="infoBtn" aria-label="정보 보기">info</button>
     </div>
   </section>
 </div>
@@ -28,10 +28,8 @@
 <!-- 안내 모달 (초기 로딩 시) -->
 <div class="modal" id="instructionModal">
   <div class="modal-content modal-content-center">
-    <button class="modal-close" id="closeInstruction" aria-label="닫기">&times;</button>
-    <h2>전시회 관람 안내</h2>
-    <p>좌우로 스와이프하여 전시 공간을 탐색해보세요.</p>
-    <p>화살표 버튼이나 키보드 화살표 키를 사용할 수 있습니다.</p>
+    <h2>That's my neighbor 관람 안내</h2>
+    <p>위치 정보 권한을 허용을 클릭해주세요.</p>
     <p>우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요.</p>
     <button class="modal-btn" id="startBtn">시작하기</button>
   </div>
@@ -40,49 +38,38 @@
 <!-- INFO 모달 -->
 <div class="modal" id="infoModal">
   <div class="modal-content modal-content-scrollable">
-    <button class="modal-close" id="closeInfo" aria-label="닫기">&times;</button>
     <div class="modal-body">
-      <!-- 로고 -->
-      <div class="info-logo">
-        <img src="assets/img/logo.png" alt="전시회 로고">
-      </div>
-
       <!-- 작품 정보 -->
       <div class="info-section">
         <h3>작품 정보</h3>
-        <p><strong>제목:</strong> 현대 미술 전시회</p>
-        <p><strong>기간:</strong> 2024년 1월 - 12월</p>
-        <p><strong>장소:</strong> 서울시 중구 전시관</p>
+        <p><strong>제목:</strong> That's my neighbor</p>
+        <p><strong>기간:</strong> 2025년 11월 29일 ~ 12월 3일</p>
+        <p><strong>장소:</strong> 부산현대미술관</p>
       </div>
 
       <!-- 크레딧 -->
       <div class="info-section">
-        <h3>신용 정보</h3>
-        <p><strong>큐레이터:</strong> 홍길동</p>
-        <p><strong>아티스트:</strong> 김영희, 이순신</p>
-        <p><strong>후원:</strong> OO 문화 재단</p>
+        <h3>크레딧</h3>
+        <p><strong>큐레이터:</strong> 이민정</p>
+        <p><strong>아티스트:</strong> 신하라
       </div>
 
       <!-- 상세 설명 -->
       <div class="info-section">
-        <h3>전시회 설명</h3>
-        <p>이 전시회는 현대 미술의 다양한 표현 방식을 소개합니다. 디지털 기술과 전통 예술의 융합을 통해 새로운 감성적 경험을 제공합니다.</p>
-      </div>
-
-      <!-- 문의 정보 -->
-      <div class="info-section">
-        <h3>문의</h3>
-        <p><strong>전화:</strong> 02-1234-5678</p>
-        <p><strong>이메일:</strong> info@exhibition.com</p>
-        <p><strong>웹사이트:</strong> www.exhibition.com</p>
+        <h3>전시 설명</h3>
+        <p>전시 설명</p>
       </div>
     </div>
+    <button class="modal-close" id="closeInfo" aria-label="닫기">닫기</button>
   </div>
 </div>
 
+<script src="assets/js/config.js"></script> <!-- 공통 설정 JS -->
 <script src="assets/js/layout.js"></script> <!-- 디자인 레이아웃 JS -->
 <script src="assets/js/library/axios.js"></script> <!-- axios 라이브러리 -->
+<script src="assets/js/library/animation.js"></script> <!-- axios 라이브러리 -->
 <script src="assets/js/map-style.js"></script> <!-- 구글맵 지도 스타일 설정 -->
+<script src="assets/js/mock.js"></script> <!-- 유저 위치 모킹 -->
 <script src="assets/js/gps.js"></script> <!-- GPS 설정 -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
 </body>

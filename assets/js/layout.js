@@ -11,6 +11,7 @@ function showGuideModal() {
   if (!localStorage.getItem(INSTRUCTION_SEEN_KEY)) {
     instructionModal.classList.add('show');
   }
+  instructionModal.classList.add('show');
 }
 
 function closeGuideModal() {
