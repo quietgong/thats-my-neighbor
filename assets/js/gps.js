@@ -92,7 +92,7 @@ function updateUserMarker(user) {
   const circle = new google.maps.Circle({
     map,
     center: position,
-    radius: 1,
+    radius: 1.5,
     fillColor: color,
     fillOpacity: 0.1,
     strokeColor: color,
