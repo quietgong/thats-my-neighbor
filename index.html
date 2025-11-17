@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- AR 모델 뷰어 -->
+<model-viewer id="hiddenViewer" src="" ar ar-modes="scene-viewer webxr quick-look"></model-viewer>
+
 <!-- 메인 컨테이너 -->
 <div class="container">
   <!-- 지도 섹션 -->
@@ -71,6 +75,9 @@
 <script src="assets/js/map-style.js"></script> <!-- 구글맵 지도 스타일 설정 -->
 <script src="assets/js/mock.js"></script> <!-- 유저 위치 모킹 -->
 <script src="assets/js/gps.js"></script> <!-- GPS 설정 -->
+<!-- 구글맵 라이브러리 -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
+<!-- 모델뷰어 라이브러리 -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 </body>
 </html>
