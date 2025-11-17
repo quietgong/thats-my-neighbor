@@ -26,6 +26,7 @@ let MOCK_USERS = [
         lng: DEFAULT_CENTER_POSITION["lng"],
     }
 ];
+const currentUrl = window.location.origin;
 const userMarkers = new Map();
 const currentUser = {
     "id": "",
@@ -143,7 +144,7 @@ async function initMap() {
     });
     // 구글맵 이미지 오버레이
     const floorPlanBounds = new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION);
-    const floorPlanOverlay = new google.maps.GroundOverlay("../assets/img/map.png", floorPlanBounds, {opacity: 0.3});
+    const floorPlanOverlay = new google.maps.GroundOverlay(`${currentUrl}/assets/img/map.png`, floorPlanBounds, {opacity: 0.3});
     floorPlanOverlay.setMap(map);
     map.fitBounds(floorPlanBounds);
 
