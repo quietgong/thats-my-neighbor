@@ -1,3 +1,6 @@
+const SITE_URL = window.location.protocol === "http:" ? window.location.origin : "https://quietgong.github.io/thats-my-neighbor";
+console.log(`SITE_URL = ${SITE_URL}`)
+
 let USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 40; // 업데이트할만한 GPS 정확도 기준
 const API_BASE_URL = "https://rnd.api-plinqer.com/api" // 서버 API baseUrl
@@ -12,22 +15,13 @@ const MAP_BOUNDS = {
 };
 
 // 나선형 설치물 위치
-const DEFAULT_CENTER_POSITION = {
-  lat: 35.109331,
-  lng: 128.942799
-};
+const DEFAULT_CENTER_POSITION = {lat: 35.109331, lng: 128.94279};
 
 // 전시장의 남서쪽 위치
-const GALLERY_SOUTH_WEST_POSITION = {
-  lat: 35.10925106680301,
-  lng: 128.94284850659304
-};
+const GALLERY_SOUTH_WEST_POSITION = {lat: 35.109113, lng: 128.942246};
 
 // 전시장의 북동쪽 위치
-const GALLERY_NORTH_EAST_POSITION = {
-  lat: 35.109251955,
-  lng: 128.94284905724234
-};
+const GALLERY_NORTH_EAST_POSITION = {lat: 35.109255, lng: 128.942564};
 
 // 실제로 적용할 줌 레벨
 const TARGET_ZOOM_LEVEL = 21;
@@ -40,7 +34,7 @@ const NORMAL_ART_WORKS = [
   {
     name: "조각 A",
     position: {lat: 35.109113, lng: 128.942246},
-    imageUrl: "assets/img/artwork.png",
+    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
     description: "금속 재질의 현대 조각 작품입니다.",
   },
 ];
@@ -50,7 +44,7 @@ const AR_ART_WORKS = [
   {
     name: "회화 B",
     position: {lat: 35.109255, lng: 128.942564},
-    imageUrl: "assets/img/artwork.png",
+    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
     description: "추상적인 색감의 회화 작품입니다.",
     glbUrl: "assets/glb/obj2.glb"
   },
