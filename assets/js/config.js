@@ -18,13 +18,13 @@ const MAP_BOUNDS = {
 const DEFAULT_CENTER_POSITION = {lat: 35.109331, lng: 128.94279};
 
 // 전시장의 남서쪽 위치
-const GALLERY_SOUTH_WEST_POSITION = {lat: 35.109113, lng: 128.942246};
+const GALLERY_SOUTH_WEST_POSITION = {lat: 35.1094477, lng: 128.9426923};
 
 // 전시장의 북동쪽 위치
-const GALLERY_NORTH_EAST_POSITION = {lat: 35.109255, lng: 128.942564};
+const GALLERY_NORTH_EAST_POSITION = {lat: 35.1094847, lng: 128.9427893};
 
 // 실제로 적용할 줌 레벨
-const TARGET_ZOOM_LEVEL = 21;
+const TARGET_ZOOM_LEVEL = 23;
 
 // 마커 사이즈
 const MARKER_SIZE = 36;
@@ -46,6 +46,6 @@ const AR_ART_WORKS = [
     position: {lat: 35.109255, lng: 128.942564},
     imageUrl: `${SITE_URL}/assets/img/artwork.png`,
     description: "추상적인 색감의 회화 작품입니다.",
-    glbUrl: "assets/glb/obj2.glb"
+    glbUrl: `${SITE_URL}/assets/glb/obj2.glb`
   },
 ];

@@ -1,4 +1,47 @@
 let map;
+const GlobalBounds = {
+  old: null,     // 기존 실제 Bound (전시장 실제 NE/SW)
+  expanded: null, // 확장된 Bound
+  expandRate: 0.0006,
+
+  /**
+   * Bound 초기화
+   */
+  init(oldSW, oldNE, expandRate = null) {
+    this.old = {SW: oldSW, NE: oldNE};
+    this.expandRate = expandRate ?? this.expandRate;
+
+    this.expanded = {
+      SW: {
+        lat: oldSW.lat - this.expandRate,
+        lng: oldSW.lng - this.expandRate,
+      },
+      NE: {
+        lat: oldNE.lat + this.expandRate,
+        lng: oldNE.lng + this.expandRate,
+      }
+    };
+
+    console.log("🌍 GlobalBounds initialized:", this);
+  },
+
+  /**
+   * GPS → 확장 Bound 좌표 변환
+   */
+  toExpanded(pos) {
+    const {SW: oldSW, NE: oldNE} = this.old;
+    const {SW: newSW, NE: newNE} = this.expanded;
+
+    const tLat = (pos.lat - oldSW.lat) / (oldNE.lat - oldSW.lat);
+    const tLng = (pos.lng - oldSW.lng) / (oldNE.lng - oldSW.lng);
+
+    return {
+      lat: newSW.lat + (newNE.lat - newSW.lat) * tLat,
+      lng: newSW.lng + (newNE.lng - newSW.lng) * tLng
+    };
+  },
+};
+
 let MOCK_USERS = [
   {
     id: "user-" + Math.random().toString(36).substr(2, 9),
@@ -60,19 +103,20 @@ async function updateUsersLocation() {
 
     // 내 데이터 & 타인 데이터 분리
     const me = users.find(u => u.id === currentUser.id) || null;
-
-    const others = users
-        .filter(u => u.id !== currentUser.id)
-        .slice(0, 10); // 혹시 서버가 10명 넘게 보내면 방어
+    const others = users.filter(u => u.id !== currentUser.id).slice(0, 10); // 혹시 서버가 10명 넘게 보내면 방어
 
     // 현재 표시해야 할 모든 userId 목록 (문자열로 통일)
     const activeIds = new Set([...(me ? [String(me.id)] : []), ...others.map(u => String(u.id))]);
 
     // 내 위치 업데이트
-    if (me) updateUserMarker(me);
+    if (me) {
+      updateUserMarker(me);
+    }
 
     // 타인 최대 10명 위치 업데이트
-    others.forEach(user => updateUserMarker(user));
+    others.forEach(user => {
+      updateUserMarker(user)
+    });
 
     // 기존 마커 중 이번 업데이트 목록에 없는 유저 제거
     for (const [userKey, {marker, circle}] of userMarkers.entries()) {
@@ -92,7 +136,7 @@ function updateUserMarker(user) {
   if (!map) return
 
   const userKey = String(user.id);
-  const newPosition = {lat: user.lat, lng: user.lng};
+  const newPosition = GlobalBounds.toExpanded({lat: user.lat, lng: user.lng});
 
   if (userMarkers.has(userKey)) {
     const {marker, circle} = userMarkers.get(userKey)
@@ -134,19 +178,30 @@ function updateUserMarker(user) {
 }
 
 async function initMap() {
+  // Bound 초기화
+  GlobalBounds.init(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION, 0.00005);
+
   // map 객체 설정
   map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+  const overlay = new google.maps.GroundOverlay(
+      `${SITE_URL}/assets/img/map.png`,
+      new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE),
+      {opacity: 1}
+  );
+  overlay.setMap(map);
+
+  // fitBounds 적용
+  map.fitBounds(new google.maps.LatLngBounds(
+      GlobalBounds.expanded.SW,
+      GlobalBounds.expanded.NE,
+  ));
 
   // 초기 줌 우회 적용
   google.maps.event.addListenerOnce(map, "idle", () => {
     map.setZoom(TARGET_ZOOM_LEVEL);
+    map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
   });
-
-  // 구글맵 이미지 오버레이
-  const floorPlanBounds = new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION);
-  const floorPlanOverlay = new google.maps.GroundOverlay(`${SITE_URL}/assets/img/map.png`, floorPlanBounds, {opacity: 0.3});
-  floorPlanOverlay.setMap(map);
-  map.fitBounds(floorPlanBounds);
 
   // 마커 생성
   drawArtworkMarkers()
@@ -238,7 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   } else {
     setInterval(async () => {
-      await updateUsersLocation
+      await updateUsersLocation();
     }, UPDATE_INTERVAL);
   }
 })
