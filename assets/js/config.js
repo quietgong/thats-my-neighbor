@@ -8,11 +8,19 @@ const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
-  north: 35.124699,
-  south: 35.068264,
-  west: 128.919671,
-  east: 128.957813,
+    north: 35.124699,
+    south: 35.068264,
+    west: 128.919671,
+    east: 128.957813,
 };
+
+// 미술관 지도 범위
+const MUSEUM_BOUNDS = {
+    north: 35.1102139,
+    south: 35.1088968,
+    west: 128.9421497,
+    east: 128.9436165,
+}
 
 // 나선형 설치물 위치
 const DEFAULT_CENTER_POSITION = {lat: 35.109331, lng: 128.94279};
@@ -29,23 +37,24 @@ const TARGET_ZOOM_LEVEL = 23;
 // 마커 사이즈
 const MARKER_SIZE = 36;
 
-// 일반 설치물 정보
-const NORMAL_ART_WORKS = [
-  {
-    name: "조각 A",
-    position: {lat: 35.109113, lng: 128.942246},
-    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
-    description: "금속 재질의 현대 조각 작품입니다.",
-  },
-];
-
-// AR 설치물 정보
-const AR_ART_WORKS = [
-  {
-    name: "회화 B",
-    position: {lat: 35.109255, lng: 128.942564},
-    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
-    description: "추상적인 색감의 회화 작품입니다.",
-    glbUrl: `${SITE_URL}/assets/glb/obj2.glb`
-  },
+// 설치물 정보
+const ART_WORKS = [
+    {
+        name: "조각 A",
+        position: {
+            lat: 35.109507561984636,
+            lng: 128.94274269094618
+        },
+        imageUrl: `${SITE_URL}/assets/img/artwork.png`,
+        description: "금속 재질의 현대 조각 작품입니다.",
+    },
+    {
+        name: "회화 B",
+        position: {
+            lat: 35.10941610576727,
+            lng: 128.94272896192697
+        },
+        imageUrl: `${SITE_URL}/assets/img/artwork.png`,
+        description: "추상적인 색감의 회화 작품입니다.",
+    },
 ];

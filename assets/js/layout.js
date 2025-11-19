@@ -51,3 +51,16 @@ document.addEventListener("DOMContentLoaded", function () {
   instructionModal.addEventListener('click', clickOutModal);
   infoModal.addEventListener('click', clickOutModal);
 })
+
+const langKRBtn = document.getElementById("btnKR");
+const langENBtn = document.getElementById("btnEN");
+
+function setLanguage(lang) {
+    const texts = document.querySelectorAll(".trans");
+    texts.forEach(el => {
+        el.textContent = el.dataset[lang];
+    });
+}
+
+langKRBtn.addEventListener("click", () => setLanguage("kr"));
+langENBtn.addEventListener("click", () => setLanguage("en"));
