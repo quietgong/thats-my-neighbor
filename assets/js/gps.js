@@ -332,7 +332,7 @@ async function handlePosition(position) {
     const distance = getDistanceMeters(currentUser.lat, currentUser.lng, rawLat, rawLng);
 
     // 3m 이내 변화는 무시
-    if (distance < 1) {
+    if (distance < 3.5 && distance >= 1) {
         console.log(`⛔ 이동거리 ${distance.toFixed(2)}m → 업데이트 스킵`);
         return;
     }
