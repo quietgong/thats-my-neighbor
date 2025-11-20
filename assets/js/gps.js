@@ -182,7 +182,7 @@ function bindOverlayAdjustEvents(swMarker, neMarker) {
 
         // 새 오버레이 생성
         overlay = new google.maps.GroundOverlay(
-            `${SITE_URL}/assets/img/map-rotate.png`,
+            `${SITE_URL}/assets/img/map.png`,
             new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
             {opacity: 1}
         );
@@ -256,7 +256,7 @@ async function initMap() {
     overlayBounds.NE = {...GALLERY_NORTH_EAST_POSITION};
 
     overlay = new google.maps.GroundOverlay(
-        `${SITE_URL}/assets/img/map-rotate.png`,
+        `${SITE_URL}/assets/img/map.png`,
         new google.maps.LatLngBounds(
             overlayBounds.SW,
             overlayBounds.NE
@@ -273,13 +273,12 @@ async function initMap() {
     // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
         createOverlayAdjustMarkers();
-
         map.setZoom(TARGET_ZOOM_LEVEL);
         // map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
     });
 
     // 마커 생성
-    drawArtworkMarkers()
+    // drawArtworkMarkers()
 
     // GPS 추적
     navigator.geolocation.watchPosition(handlePosition, handleError, {enableHighAccuracy: true});
@@ -322,9 +321,6 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
 
 
 async function handlePosition(position) {
-    const gpsAccuracy = position.coords.accuracy;
-    if (gpsAccuracy > VALID_GPS_ACCURACY) return;
-
     let rawLat = position.coords.latitude;
     let rawLng = position.coords.longitude;
 
@@ -332,7 +328,7 @@ async function handlePosition(position) {
     const distance = getDistanceMeters(currentUser.lat, currentUser.lng, rawLat, rawLng);
 
     // 3m 이내 변화는 무시
-    if (distance < 3.5 && distance >= 1) {
+    if (distance <= 3 && distance >= 0.5) {
         console.log(`⛔ 이동거리 ${distance.toFixed(2)}m → 업데이트 스킵`);
         return;
     }
@@ -388,9 +384,7 @@ function drawArtworkMarkers() {
                 lat: event.latLng.lat(),
                 lng: event.latLng.lng()
             };
-
             console.log("📍 마커 최종 위치:", newPos);
-
             alert(
                 "📌 마커 최종 위치\n" +
                 `Lat: ${newPos.lat}\n` +
