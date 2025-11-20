@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Exhibition Walk Test</title>
+
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    #startMotion {
+      position: absolute;
+      z-index: 9999;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 24px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    #debugBox {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 13px;
+      border-radius: 6px;
+      z-index: 9999;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+
+<button id="startMotion">전시 시작하기</button>
+
+<div id="map"></div>
+
+<div id="debugBox">준비중...</div>
+
+<script>
+/******************************************************
+ *  전시장 테스트용 좌표 (16m x 16m 가정)
+ ******************************************************/
+const GALLERY_SOUTH_WEST_POSITION = { lat: 35.109283422, lng: 128.942775953 };
+const GALLERY_NORTH_EAST_POSITION = { lat: 35.10942715, lng: 128.942951363 };
+const DEFAULT_CENTER = { lat: 35.109355, lng: 128.942865 };
+
+let map;
+let currentUser = { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng };
+
+let marker, headingArrow;
+
+/******************************************************
+ * Dead-Reckoning 상태 변수
+ ******************************************************/
+let heading = 0;
+let filteredHeading = 0;
+let velocity = 0;
+let stepStrength = 0;
+let stepCount = 0;
+let lastUpdateTime = Date.now();
+
+const SPEED_FACTOR = 0.0000028;
+const DECAY = 0.92;
+const HEADING_FILTER = 0.15;
+
+// 전시장 벽 충돌 방지 Bound
+const EXHIBIT_BOUNDS = {
+  north: GALLERY_NORTH_EAST_POSITION.lat,
+  south: GALLERY_SOUTH_WEST_POSITION.lat,
+  west:  GALLERY_SOUTH_WEST_POSITION.lng,
+  east:  GALLERY_NORTH_EAST_POSITION.lng
+};
+
+
+/******************************************************
+ * 지도 초기화
+ ******************************************************/
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: DEFAULT_CENTER,
+    zoom: 20,
+    disableDefaultUI: true,
+  });
+
+  // 전시장 이미지 오버레이 (선택)
+  const overlay = new google.maps.GroundOverlay(
+    "https://i.imgur.com/UcH5k6X.png",  // 샘플 이미지 (원하면 교체)
+    new google.maps.LatLngBounds(
+      GALLERY_SOUTH_WEST_POSITION,
+      GALLERY_NORTH_EAST_POSITION),
+    {opacity: 0.8}
+  );
+  overlay.setMap(map);
+
+  // 사용자 마커
+  marker = new google.maps.Marker({
+    position: DEFAULT_CENTER,
+    map,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 8,
+      fillColor: "#4285F4",
+      fillOpacity: 1,
+      strokeColor: "#fff",
+      strokeWeight: 2
+    }
+  });
+
+  // 방향 화살표
+  headingArrow = new google.maps.Marker({
+    position: DEFAULT_CENTER,
+    map,
+    icon: {
+      path: "M 0 -20 L 10 0 L -10 0 Z",
+      fillColor: "#4285F4",
+      fillOpacity: 0.9,
+      strokeColor: "#fff",
+      strokeWeight: 1,
+      scale: 1.2
+    }
+  });
+
+  // Debug
+  document.getElementById("debugBox").innerText = "센서 권한 요청 대기중...";
+}
+
+
+/******************************************************
+ * 센서 권한 요청
+ ******************************************************/
+async function requestSensorPermission() {
+  // iOS 특수 처리
+  if (typeof DeviceMotionEvent.requestPermission === "function") {
+    const r1 = await DeviceMotionEvent.requestPermission();
+    const r2 = await DeviceOrientationEvent.requestPermission();
+    if (r1 !== "granted" || r2 !== "granted") {
+      alert("센서 권한이 필요합니다.");
+      return;
+    }
+  }
+
+  window.addEventListener("deviceorientation", handleOrientation);
+  window.addEventListener("devicemotion", handleMotion);
+
+  tickMovement();
+
+  document.getElementById("startMotion").style.display = "none";
+  document.getElementById("debugBox").innerText = "센서 활성화됨. 걸어보세요!";
+}
+
+
+/******************************************************
+ * 방향(heading) 감지
+ ******************************************************/
+function handleOrientation(e) {
+  if (typeof e.alpha !== "number") return;
+
+  heading = (360 - e.alpha) % 360;
+  filteredHeading =
+    filteredHeading * (1 - HEADING_FILTER) +
+    heading * HEADING_FILTER;
+}
+
+
+/******************************************************
+ * 걸음 감지
+ ******************************************************/
+function handleMotion(e) {
+  if (!e.accelerationIncludingGravity) return;
+
+  const ax = e.accelerationIncludingGravity.x;
+  const ay = e.accelerationIncludingGravity.y;
+  const az = e.accelerationIncludingGravity.z;
+
+  const mag = Math.sqrt(ax*ax + ay*ay + az*az);
+
+  if (mag > 13) {
+    stepStrength = 1;
+    stepCount++;
+  }
+}
+
+
+/******************************************************
+ * Dead-Reckoning 이동
+ ******************************************************/
+function tickMovement() {
+  const now = Date.now();
+  const dt = (now - lastUpdateTime)/1000;
+  lastUpdateTime = now;
+
+  if (stepStrength > 0) velocity += SPEED_FACTOR * stepStrength;
+  velocity *= DECAY;
+  stepStrength *= 0.5;
+
+  const rad = filteredHeading * Math.PI/180;
+
+  let nextLat = currentUser.lat + Math.cos(rad) * velocity;
+  let nextLng = currentUser.lng + Math.sin(rad) * velocity;
+
+  nextLat = Math.max(EXHIBIT_BOUNDS.south, Math.min(nextLat, EXHIBIT_BOUNDS.north));
+  nextLng = Math.max(EXHIBIT_BOUNDS.west,  Math.min(nextLng, EXHIBIT_BOUNDS.east));
+
+  currentUser.lat = nextLat;
+  currentUser.lng = nextLng;
+
+  // 마커 이동
+  marker.setPosition(currentUser);
+
+  // 방향 화살표 이동 + 회전
+  headingArrow.setPosition(currentUser);
+  headingArrow.setIcon({
+    path: "M 0 -20 L 10 0 L -10 0 Z",
+    fillColor: "#4285F4",
+    fillOpacity: 0.9,
+    strokeColor: "#fff",
+    strokeWeight: 1,
+    scale: 1.2,
+    rotation: filteredHeading
+  });
+
+  map.panTo(currentUser);
+
+  // Debug 표시
+  document.getElementById("debugBox").innerText =
+    `Heading: ${filteredHeading.toFixed(1)}°\n` +
+    `Velocity: ${velocity.toFixed(7)}\n` +
+    `StepCount: ${stepCount}`;
+
+  requestAnimationFrame(tickMovement);
+}
+
+
+/******************************************************
+ * 센서 버튼 이벤트
+ ******************************************************/
+document.getElementById("startMotion").addEventListener("click", requestSensorPermission);
+</script>
+
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
+
+</body>
+</html>
