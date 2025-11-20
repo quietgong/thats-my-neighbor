@@ -28,18 +28,15 @@ const DEFAULT_CENTER_POSITION = {
     lng: 128.94279
 };
 
-// 북동(NE) + 5m 이동
 const GALLERY_NORTH_EAST_POSITION = {
-    lat: 35.10947489,
-    lng: 128.942788
+    lat: 35.10942715,
+    lng: 128.94300616
 };
 
-// 남서(SW) + 5m 이동
 const GALLERY_SOUTH_WEST_POSITION = {
-    lat: 35.109331162,
-    lng: 128.94261259
+    lat: 35.109283422,
+    lng: 128.94283075
 };
-
 
 // 실제로 적용할 줌 레벨
 const TARGET_ZOOM_LEVEL = 23;
