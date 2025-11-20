@@ -4,25 +4,25 @@ let map;
 // Offset 보정 설정
 // ----------------------------
 let Offset = {
-  lat: 0,
-  lng: 0,
-  enabled: true,
+    lat: 0,
+    lng: 0,
+    enabled: true,
 };
 let overlay = null;
-let overlayBounds = {SW:null, NE:null}
+let overlayBounds = {SW: null, NE: null}
 
 // ----------------------------
 // Kalman-style Smoothing
 // ----------------------------
 let Smoothing = {
-  enabled: true,
-  alpha: 0.12,
-  smoothLat(lat, prevLat) {
-    return prevLat * (1 - this.alpha) + lat * this.alpha;
-  },
-  smoothLng(lng, prevLng) {
-    return prevLng * (1 - this.alpha) + lng * this.alpha;
-  }
+    enabled: true,
+    alpha: 0.12,
+    smoothLat(lat, prevLat) {
+        return prevLat * (1 - this.alpha) + lat * this.alpha;
+    },
+    smoothLng(lng, prevLng) {
+        return prevLng * (1 - this.alpha) + lng * this.alpha;
+    }
 };
 let MOCK_USERS = [
     {
@@ -149,12 +149,12 @@ function updateUserMarker(user) {
     });
     // ⭐ 마커 클릭 → 좌표 표시
     marker.addListener("click", () => {
-      const pos = marker.getPosition();
-      alert(
-        `📍 마커 좌표\n` +
-        `Lat: ${pos.lat()}\n` +
-        `Lng: ${pos.lng()}`
-      );
+        const pos = marker.getPosition();
+        alert(
+            `📍 마커 좌표\n` +
+            `Lat: ${pos.lat()}\n` +
+            `Lng: ${pos.lng()}`
+        );
     });
 
     // 마커를 둘러싼 원
@@ -173,75 +173,75 @@ function updateUserMarker(user) {
 
 function bindOverlayAdjustEvents(swMarker, neMarker) {
 
-  function updateOverlay() {
-    overlayBounds.SW = swMarker.getPosition().toJSON();
-    overlayBounds.NE = neMarker.getPosition().toJSON();
+    function updateOverlay() {
+        overlayBounds.SW = swMarker.getPosition().toJSON();
+        overlayBounds.NE = neMarker.getPosition().toJSON();
 
-    // 기존 오버레이 제거
-    overlay.setMap(null);
+        // 기존 오버레이 제거
+        overlay.setMap(null);
 
-    // 새 오버레이 생성
-    overlay = new google.maps.GroundOverlay(
-      `${SITE_URL}/assets/img/map.png`,
-      new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
-      { opacity: 1 }
-    );
+        // 새 오버레이 생성
+        overlay = new google.maps.GroundOverlay(
+            `${SITE_URL}/assets/img/map.png`,
+            new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
+            {opacity: 1}
+        );
 
-    overlay.setMap(map);
-  }
+        overlay.setMap(map);
+    }
 
-  // 드래그 중 실시간 반영
-  swMarker.addListener("drag", updateOverlay);
-  neMarker.addListener("drag", updateOverlay);
+    // 드래그 중 실시간 반영
+    swMarker.addListener("drag", updateOverlay);
+    neMarker.addListener("drag", updateOverlay);
 
-  // 드래그 종료 시 최종 좌표 출력
-  swMarker.addListener("dragend", () => showOverlayFinal());
-  neMarker.addListener("dragend", () => showOverlayFinal());
+    // 드래그 종료 시 최종 좌표 출력
+    swMarker.addListener("dragend", () => showOverlayFinal());
+    neMarker.addListener("dragend", () => showOverlayFinal());
 }
 
 function showOverlayFinal() {
-  console.log("📌 최종 보정된 오버레이 좌표:", overlayBounds);
+    console.log("📌 최종 보정된 오버레이 좌표:", overlayBounds);
 
-  alert(
-    "📌 오버레이 최종 좌표\n\n" +
-    `SW → lat: ${overlayBounds.SW.lat},  lng: ${overlayBounds.SW.lng}\n` +
-    `NE → lat: ${overlayBounds.NE.lat},  lng: ${overlayBounds.NE.lng}`
-  );
+    alert(
+        "📌 오버레이 최종 좌표\n\n" +
+        `SW → lat: ${overlayBounds.SW.lat},  lng: ${overlayBounds.SW.lng}\n` +
+        `NE → lat: ${overlayBounds.NE.lat},  lng: ${overlayBounds.NE.lng}`
+    );
 }
 
 function createOverlayAdjustMarkers() {
 
-  // SW corner marker
-  const swMarker = new google.maps.Marker({
-    position: overlayBounds.SW,
-    map,
-    draggable: true,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 7,
-      fillColor: "#00A8F3", // 파란색
-      fillOpacity: 1,
-      strokeColor: "#fff",
-      strokeWeight: 2
-    }
-  });
+    // SW corner marker
+    const swMarker = new google.maps.Marker({
+        position: overlayBounds.SW,
+        map,
+        draggable: true,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 7,
+            fillColor: "rgba(206,198,42,0.95)",
+            fillOpacity: 1,
+            strokeColor: "#fff",
+            strokeWeight: 2
+        }
+    });
 
-  // NE corner marker
-  const neMarker = new google.maps.Marker({
-    position: overlayBounds.NE,
-    map,
-    draggable: true,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 7,
-      fillColor: "#FF5353", // 빨간색
-      fillOpacity: 1,
-      strokeColor: "#fff",
-      strokeWeight: 2
-    }
-  });
+    // NE corner marker
+    const neMarker = new google.maps.Marker({
+        position: overlayBounds.NE,
+        map,
+        draggable: true,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 7,
+            fillColor: "rgba(206,198,42,0.95)",
+            fillOpacity: 1,
+            strokeColor: "#fff",
+            strokeWeight: 2
+        }
+    });
 
-  bindOverlayAdjustEvents(swMarker, neMarker);
+    bindOverlayAdjustEvents(swMarker, neMarker);
 }
 
 
@@ -256,17 +256,20 @@ async function initMap() {
     overlayBounds.NE = {...GALLERY_NORTH_EAST_POSITION};
 
     overlay = new google.maps.GroundOverlay(
-    `${SITE_URL}/assets/img/map.png`,
-    new google.maps.LatLngBounds(
-      overlayBounds.SW,
-      overlayBounds.NE
-    ),
-    { opacity: 1 }
-  );
-  overlay.setMap(map);
+        `${SITE_URL}/assets/img/map.png`,
+        new google.maps.LatLngBounds(
+            overlayBounds.SW,
+            overlayBounds.NE
+        ),
+        {opacity: 1}
+    );
+    overlay.setMap(map);
 
     // fitBounds 적용
-    map.fitBounds(overlayBounds.SW, overlayBounds.NE);
+    map.fitBounds(new google.maps.LatLngBounds(
+        overlayBounds.SW,
+        overlayBounds.NE
+    ));
     // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
         createOverlayAdjustMarkers();
@@ -300,61 +303,61 @@ async function initMap() {
 // }
 
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
-  const R = 6371000; // 지구 반지름 (m)
-  const toRad = x => x * Math.PI / 180;
+    const R = 6371000; // 지구 반지름 (m)
+    const toRad = x => x * Math.PI / 180;
 
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
 
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) *
-    Math.cos(toRad(lat2)) *
-    Math.sin(dLng / 2) ** 2;
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) ** 2;
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c; // meters
+    return R * c; // meters
 }
 
 
 async function handlePosition(position) {
-  const gpsAccuracy = position.coords.accuracy;
-  if (gpsAccuracy > VALID_GPS_ACCURACY) return;
+    const gpsAccuracy = position.coords.accuracy;
+    if (gpsAccuracy > VALID_GPS_ACCURACY) return;
 
-  let rawLat = position.coords.latitude;
-  let rawLng = position.coords.longitude;
+    let rawLat = position.coords.latitude;
+    let rawLng = position.coords.longitude;
 
-  // ---------- (0) 이동 거리 검사 ----------
-  const distance = getDistanceMeters(currentUser.lat, currentUser.lng, rawLat, rawLng);
+    // ---------- (0) 이동 거리 검사 ----------
+    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, rawLat, rawLng);
 
-  // 3m 이내 변화는 무시
-  if (distance < 3) {
-    console.log(`⛔ 이동거리 ${distance.toFixed(2)}m → 업데이트 스킵`);
-    return;
-  }
+    // 3m 이내 변화는 무시
+    if (distance < 3) {
+        console.log(`⛔ 이동거리 ${distance.toFixed(2)}m → 업데이트 스킵`);
+        return;
+    }
 
-  console.log(`📍 이동거리: ${distance.toFixed(2)}m → 업데이트 진행`);
-  // ---------- (1) Offset 보정 ----------
-  if (Offset.enabled) {
-    rawLat -= Offset.lat;
-    rawLng -= Offset.lng;
-  }
+    console.log(`📍 이동거리: ${distance.toFixed(2)}m → 업데이트 진행`);
+    // ---------- (1) Offset 보정 ----------
+    if (Offset.enabled) {
+        rawLat -= Offset.lat;
+        rawLng -= Offset.lng;
+    }
 
-  // ---------- (2) Smoothing ----------
-  if (Smoothing.enabled) {
-    rawLat = Smoothing.smoothLat(rawLat, currentUser.lat);
-    rawLng = Smoothing.smoothLng(rawLng, currentUser.lng);
-  }
+    // ---------- (2) Smoothing ----------
+    if (Smoothing.enabled) {
+        rawLat = Smoothing.smoothLat(rawLat, currentUser.lat);
+        rawLng = Smoothing.smoothLng(rawLng, currentUser.lng);
+    }
 
-  // ---------- (3) 값 반영 ----------
-  currentUser.lat = rawLat;
-  currentUser.lng = rawLng;
+    // ---------- (3) 값 반영 ----------
+    currentUser.lat = rawLat;
+    currentUser.lng = rawLng;
 
-  console.log("📌 RAW+Offset+Smoothed:", currentUser);
+    console.log("📌 RAW+Offset+Smoothed:", currentUser);
 
-  updateUserMarker(currentUser);
-  await uploadMyCurrentLocation();
+    updateUserMarker(currentUser);
+    await uploadMyCurrentLocation();
 }
 
 function handleError(error) {
@@ -381,31 +384,22 @@ function drawArtworkMarkers() {
             infoWindow.open(map, marker);
         });
         marker.addListener("dragend", (event) => {
-            const expandedPos = {
+            const newPos = {
                 lat: event.latLng.lat(),
                 lng: event.latLng.lng()
             };
 
-            const originalPos = toOriginal(expandedPos);
+            console.log("📍 마커 최종 위치:", newPos);
 
-            console.log("📍 Expanded 좌표:", expandedPos);
-            console.log("📌 Raw Original GPS:", originalPos);
+            alert(
+                "📌 마커 최종 위치\n" +
+                `Lat: ${newPos.lat}\n` +
+                `Lng: ${newPos.lng}`
+            );
         });
     });
 }
 
-function toOriginal(pos) {
-    const {SW: oldSW, NE: oldNE} = GlobalBounds.old;
-    const {SW: newSW, NE: newNE} = GlobalBounds.expanded;
-
-    const tLat = (pos.lat - newSW.lat) / (newNE.lat - newSW.lat);
-    const tLng = (pos.lng - newSW.lng) / (newNE.lng - newSW.lng);
-
-    return {
-        lat: oldSW.lat + (oldNE.lat - oldSW.lat) * tLat,
-        lng: oldSW.lng + (oldNE.lng - oldSW.lng) * tLng
-    };
-}
 
 function getUserId() {
     const data = JSON.parse(localStorage.getItem("userId"));
