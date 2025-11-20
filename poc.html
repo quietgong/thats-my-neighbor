@@ -91,7 +91,7 @@ const EXHIBIT_BOUNDS = {
   east:  GALLERY_NORTH_EAST_POSITION.lng
 };
 
-
+const SITE_URL = window.location.protocol === "http:" ? window.location.origin : "https://quietgong.github.io/thats-my-neighbor";
 /******************************************************
  * 지도 초기화
  ******************************************************/
@@ -104,7 +104,7 @@ function initMap() {
 
   // 전시장 이미지 오버레이 (선택)
   const overlay = new google.maps.GroundOverlay(
-    `/assets/img/map.png`,
+    `${SITE_URL}/assets/img/map.png`,
     new google.maps.LatLngBounds(
       GALLERY_SOUTH_WEST_POSITION,
       GALLERY_NORTH_EAST_POSITION),
