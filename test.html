@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>That's my neighbor</title>
+    <!-- font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- AR 모델 뷰어 -->
+<model-viewer id="hiddenViewer" src="" ar ar-modes="scene-viewer webxr quick-look"></model-viewer>
+
+<!-- 메인 컨테이너 -->
+<div class="container">
+    <!-- 지도 섹션 -->
+    <section class="map-section">
+        <!-- Goolgle Map -->
+        <div id="map"></div>
+        <!-- 헤더 오버레이 (로고 및 INFO 버튼이 지도 위에 겹침) -->
+        <div class="header-overlay">
+            <img class="logo" src="assets/img/logo.png" alt="전시회 로고">
+            <button class="info-btn" id="infoBtn">
+                <img src="assets/img/info_button.png">
+            </button>
+        </div>
+    </section>
+</div>
+
+<!-- 안내 모달 (초기 로딩 시) -->
+<div class="modal" id="instructionModal">
+    <div class="modal-content modal-content-scrollable">
+
+        <div class="language-buttons">
+            <button id="btnKR">한국어</button>
+            <button id="btnEN">EN</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="info-section">
+                <h3 class="trans" data-kr="That's my neighbor 관람 안내" data-en="Guide to Viewing 'That's my neighbor'">
+                    That's my neighbor 관람 안내
+                </h3>
+
+                <p class="trans" data-kr="위치 정보 권한을 허용을 클릭해주세요."
+                                data-en="Please allow location permission.">
+                    위치 정보 권한을 허용을 클릭해주세요.
+                </p>
+
+                <p class="trans" data-kr="우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요."
+                                data-en="Tap the INFO button at the top right to see artwork information.">
+                    우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요.
+                </p>
+            </div>
+        </div>
+
+        <button class="modal-close" id="startBtn">시작하기</button>
+    </div>
+</div>
+
+
+<!-- INFO 모달 -->
+<div class="modal" id="infoModal">
+    <div class="modal-content modal-content-scrollable">
+        <div class="modal-body">
+            <!-- 작품 정보 -->
+            <div class="info-section">
+                <h3>작품 정보</h3>
+                <p><strong>제목:</strong> That's my neighbor</p>
+                <p><strong>기간:</strong> 2025년 11월 29일 ~ 12월 3일</p>
+                <p><strong>장소:</strong> 부산현대미술관</p>
+            </div>
+
+            <!-- 크레딧 -->
+            <div class="info-section">
+                <h3>크레딧</h3>
+                <p><strong>큐레이터:</strong> 이민정</p>
+                <p><strong>아티스트:</strong> 신하라
+            </div>
+
+            <!-- 상세 설명 -->
+            <div class="info-section">
+                <h3>전시 설명</h3>
+                <p>전시 설명</p>
+            </div>
+        </div>
+        <button class="modal-close" id="closeInfo" aria-label="닫기">닫기</button>
+    </div>
+</div>
+
+<!-- AR 버튼 -->
+<div class="bottom-buttons">
+    <button class="temp-btn" onclick="activateAr('obj1')">AR 1</button>
+    <button class="temp-btn" onclick="activateAr('obj2')">AR 2</button>
+    <button class="temp-btn" onclick="activateAr('obj3')">AR 3</button>
+</div>
+
+<script src="assets/js/config.js"></script> <!-- 공통 설정 JS -->
+<script src="assets/js/layout.js"></script> <!-- 디자인 레이아웃 JS -->
+<script src="assets/js/library/axios.js"></script> <!-- axios 라이브러리 -->
+<script src="assets/js/library/animation.js"></script> <!-- axios 라이브러리 -->
+<script src="assets/js/map-style.js"></script> <!-- 구글맵 지도 스타일 설정 -->
+<script src="assets/js/mock.js"></script> <!-- 유저 위치 모킹 -->
+<script src="assets/js/gps-test.js"></script> <!-- GPS 설정 -->
+<!-- 구글맵 라이브러리 -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>
+<!-- 모델뷰어 라이브러리 -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+</body>
+</html>
