@@ -1,4 +1,27 @@
 let map;
+
+// ----------------------------
+// Offset 보정 설정
+// ----------------------------
+let Offset = {
+  lat: 0,
+  lng: 0,
+  enabled: true,
+};
+
+// ----------------------------
+// Kalman-style Smoothing
+// ----------------------------
+let Smoothing = {
+  enabled: true,
+  alpha: 0.25,
+  smoothLat(lat, prevLat) {
+    return prevLat * (1 - this.alpha) + lat * this.alpha;
+  },
+  smoothLng(lng, prevLng) {
+    return prevLng * (1 - this.alpha) + lng * this.alpha;
+  }
+};
 let MOCK_USERS = [
     {
         id: "user-" + Math.random().toString(36).substr(2, 9),
@@ -174,20 +197,49 @@ async function initMap() {
     navigator.geolocation.watchPosition(handlePosition, handleError, {enableHighAccuracy: true});
 }
 
+// async function handlePosition(position) {
+//
+//     const gpsAccuracy = position.coords.accuracy;
+//     if (gpsAccuracy <= VALID_GPS_ACCURACY) {
+//         // 현재 나의 위치 정보 얻기
+//         currentUser.lat = position.coords.latitude;
+//         currentUser.lng = position.coords.longitude;
+//         console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
+//
+//         // 나의 위치 마커 업데이트
+//         updateUserMarker(currentUser);
+//
+//         // 나의 위치 DB 업로드
+//         await uploadMyCurrentLocation();
+//     }
+// }
 async function handlePosition(position) {
-    const gpsAccuracy = position.coords.accuracy;
-    if (gpsAccuracy <= VALID_GPS_ACCURACY) {
-        // 현재 나의 위치 정보 얻기
-        currentUser.lat = position.coords.latitude;
-        currentUser.lng = position.coords.longitude;
-        console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
+  const gpsAccuracy = position.coords.accuracy;
+  if (gpsAccuracy > VALID_GPS_ACCURACY) return;
 
-        // 나의 위치 마커 업데이트
-        updateUserMarker(currentUser);
+  let rawLat = position.coords.latitude;
+  let rawLng = position.coords.longitude;
 
-        // 나의 위치 DB 업로드
-        await uploadMyCurrentLocation();
-    }
+  // ---------- (1) Offset 보정 ----------
+  if (Offset.enabled) {
+    rawLat -= Offset.lat;
+    rawLng -= Offset.lng;
+  }
+
+  // ---------- (2) Smoothing ----------
+  if (Smoothing.enabled) {
+    rawLat = Smoothing.smoothLat(rawLat, currentUser.lat);
+    rawLng = Smoothing.smoothLng(rawLng, currentUser.lng);
+  }
+
+  // ---------- (3) 값 반영 ----------
+  currentUser.lat = rawLat;
+  currentUser.lng = rawLng;
+
+  console.log("📌 RAW+Offset+Smoothed:", currentUser);
+
+  updateUserMarker(currentUser);
+  await uploadMyCurrentLocation();
 }
 
 function handleError(error) {
@@ -254,6 +306,7 @@ function getUserId() {
 function activateAr(objId) {
     const viewer = document.getElementById("hiddenViewer");
     viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
+    console.log(`src = ${viewer.src}`)
     viewer.activateAR();
 }
 
