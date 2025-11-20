@@ -2,7 +2,7 @@ const SITE_URL = window.location.protocol === "http:" ? window.location.origin :
 console.log(`SITE_URL = ${SITE_URL}`)
 
 let USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
-const VALID_GPS_ACCURACY = 40; // 업데이트할만한 GPS 정확도 기준
+const VALID_GPS_ACCURACY = 20; // 업데이트할만한 GPS 정확도 기준
 const API_BASE_URL = "https://rnd.api-plinqer.com/api" // 서버 API baseUrl
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 

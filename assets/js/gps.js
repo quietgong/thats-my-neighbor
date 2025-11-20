@@ -16,7 +16,7 @@ let overlayBounds = {SW:null, NE:null}
 // ----------------------------
 let Smoothing = {
   enabled: true,
-  alpha: 0.25,
+  alpha: 0.12,
   smoothLat(lat, prevLat) {
     return prevLat * (1 - this.alpha) + lat * this.alpha;
   },
