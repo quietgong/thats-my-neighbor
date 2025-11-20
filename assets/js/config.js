@@ -28,15 +28,15 @@ const DEFAULT_CENTER_POSITION = {
     lng: 128.94279
 };
 
-// 전시장의 북동쪽 위치 (NE)
+// 북동(NE) + 5m 이동
 const GALLERY_NORTH_EAST_POSITION = {
-    lat: 35.109430,
+    lat: 35.10947489,
     lng: 128.942788
 };
 
-// 전시장의 남서쪽 위치 (SW)
+// 남서(SW) + 5m 이동
 const GALLERY_SOUTH_WEST_POSITION = {
-    lat: 35.109286272,
+    lat: 35.109331162,
     lng: 128.94261259
 };
 

@@ -8,6 +8,8 @@ let Offset = {
   lng: 0,
   enabled: true,
 };
+let overlay = null;
+let overlayBounds = {SW:null, NE:null}
 
 // ----------------------------
 // Kalman-style Smoothing
