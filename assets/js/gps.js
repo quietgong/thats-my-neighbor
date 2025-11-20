@@ -1,5 +1,5 @@
 let map;
-const mapExpandRate = 0.00005;
+const mapExpandRate = 0.00002;
 const GlobalBounds = {
     old: null,     // 기존 실제 Bound (전시장 실제 NE/SW)
     expanded: null, // 확장된 Bound
@@ -161,6 +161,15 @@ function updateUserMarker(user) {
             strokeColor: "#fff",
             strokeWeight: 2
         }
+    });
+    // ⭐ 마커 클릭 → 좌표 표시
+    marker.addListener("click", () => {
+      const pos = marker.getPosition();
+      alert(
+        `📍 마커 좌표\n` +
+        `Lat: ${pos.lat()}\n` +
+        `Lng: ${pos.lng()}`
+      );
     });
 
     // 마커를 둘러싼 원
