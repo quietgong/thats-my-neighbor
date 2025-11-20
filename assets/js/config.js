@@ -31,12 +31,12 @@ const DEFAULT_CENTER_POSITION = {
 
 const GALLERY_NORTH_EAST_POSITION = {
     lat: 35.10942715,
-    lng: 128.94311575
+    lng: 128.94300616
 };
 
 const GALLERY_SOUTH_WEST_POSITION = {
     lat: 35.109283422,
-    lng: 128.94294034
+    lng: 128.94283075
 };
 // 실제로 적용할 줌 레벨
 const TARGET_ZOOM_LEVEL = 23;
