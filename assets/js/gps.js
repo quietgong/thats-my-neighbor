@@ -171,23 +171,106 @@ function updateUserMarker(user) {
     userMarkers.set(userKey, {marker, circle})
 }
 
+function bindOverlayAdjustEvents(swMarker, neMarker) {
+
+  function updateOverlay() {
+    overlayBounds.SW = swMarker.getPosition().toJSON();
+    overlayBounds.NE = neMarker.getPosition().toJSON();
+
+    // 기존 오버레이 제거
+    overlay.setMap(null);
+
+    // 새 오버레이 생성
+    overlay = new google.maps.GroundOverlay(
+      `${SITE_URL}/assets/img/map.png`,
+      new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
+      { opacity: 1 }
+    );
+
+    overlay.setMap(map);
+  }
+
+  // 드래그 중 실시간 반영
+  swMarker.addListener("drag", updateOverlay);
+  neMarker.addListener("drag", updateOverlay);
+
+  // 드래그 종료 시 최종 좌표 출력
+  swMarker.addListener("dragend", () => showOverlayFinal());
+  neMarker.addListener("dragend", () => showOverlayFinal());
+}
+
+function showOverlayFinal() {
+  console.log("📌 최종 보정된 오버레이 좌표:", overlayBounds);
+
+  alert(
+    "📌 오버레이 최종 좌표\n\n" +
+    `SW → lat: ${overlayBounds.SW.lat},  lng: ${overlayBounds.SW.lng}\n` +
+    `NE → lat: ${overlayBounds.NE.lat},  lng: ${overlayBounds.NE.lng}`
+  );
+}
+
+function createOverlayAdjustMarkers() {
+
+  // SW corner marker
+  const swMarker = new google.maps.Marker({
+    position: overlayBounds.SW,
+    map,
+    draggable: true,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 7,
+      fillColor: "#00A8F3", // 파란색
+      fillOpacity: 1,
+      strokeColor: "#fff",
+      strokeWeight: 2
+    }
+  });
+
+  // NE corner marker
+  const neMarker = new google.maps.Marker({
+    position: overlayBounds.NE,
+    map,
+    draggable: true,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 7,
+      fillColor: "#FF5353", // 빨간색
+      fillOpacity: 1,
+      strokeColor: "#fff",
+      strokeWeight: 2
+    }
+  });
+
+  bindOverlayAdjustEvents(swMarker, neMarker);
+}
+
+
 async function initMap() {
     // map 객체 설정
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
     // 구글맵 이미지 오버레이
     const bounds = new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION);
-    const overlay = new google.maps.GroundOverlay(
-        `${SITE_URL}/assets/img/map.png`,
-        bounds,
-        {opacity: 1}
-    );
-    overlay.setMap(map);
+
+    overlayBounds.SW = {...GALLERY_SOUTH_WEST_POSITION};
+    overlayBounds.NE = {...GALLERY_NORTH_EAST_POSITION};
+
+    overlay = new google.maps.GroundOverlay(
+    `${SITE_URL}/assets/img/map.png`,
+    new google.maps.LatLngBounds(
+      overlayBounds.SW,
+      overlayBounds.NE
+    ),
+    { opacity: 1 }
+  );
+  overlay.setMap(map);
 
     // fitBounds 적용
-    map.fitBounds(bounds);
+    map.fitBounds(overlayBounds.SW, overlayBounds.NE);
     // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
+        createOverlayAdjustMarkers();
+
         map.setZoom(TARGET_ZOOM_LEVEL);
         // map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
     });
