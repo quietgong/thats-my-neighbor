@@ -26,10 +26,10 @@ const MUSEUM_BOUNDS = {
 const DEFAULT_CENTER_POSITION = {lat: 35.109331, lng: 128.94279};
 
 // 전시장의 남서쪽 위치
-const GALLERY_SOUTH_WEST_POSITION = {lat: 35.1094477, lng: 128.9426923};
+const GALLERY_SOUTH_WEST_POSITION = {lat: 35.1094429, lng: 128.9428014};
 
 // 전시장의 북동쪽 위치
-const GALLERY_NORTH_EAST_POSITION = {lat: 35.1094847, lng: 128.9427893};
+const GALLERY_NORTH_EAST_POSITION = {lat: 35.1094498, lng: 128.9428578};
 
 // 실제로 적용할 줌 레벨
 const TARGET_ZOOM_LEVEL = 23;

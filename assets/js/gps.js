@@ -1,44 +1,4 @@
 let map;
-const mapExpandRate = 0.00002;
-const GlobalBounds = {
-    old: null,     // 기존 실제 Bound (전시장 실제 NE/SW)
-    expanded: null, // 확장된 Bound
-    expandRate: mapExpandRate,
-    /**
-     * Bound 초기화
-     */
-    init(oldSW, oldNE, expandRate = null) {
-        this.old = {SW: oldSW, NE: oldNE};
-        this.expandRate = expandRate ?? this.expandRate;
-
-        this.expanded = {
-            SW: {
-                lat: oldSW.lat - this.expandRate,
-                lng: oldSW.lng - this.expandRate,
-            },
-            NE: {
-                lat: oldNE.lat + this.expandRate,
-                lng: oldNE.lng + this.expandRate,
-            }
-        };
-        console.log("🌍 GlobalBounds initialized:", this);
-    },
-
-    /**
-     * GPS → 확장 Bound 좌표 변환
-     */
-    toExpanded(pos) {
-        const {SW: oldSW, NE: oldNE} = this.old;
-        const {SW: newSW, NE: newNE} = this.expanded;
-        const tLat = (pos.lat - oldSW.lat) / (oldNE.lat - oldSW.lat);
-        const tLng = (pos.lng - oldSW.lng) / (oldNE.lng - oldSW.lng);
-        return {
-            lat: newSW.lat + (newNE.lat - newSW.lat) * tLat,
-            lng: newSW.lng + (newNE.lng - newSW.lng) * tLng
-        };
-    },
-};
-
 let MOCK_USERS = [
     {
         id: "user-" + Math.random().toString(36).substr(2, 9),
@@ -133,10 +93,10 @@ function updateUserMarker(user) {
     if (!map) return
 
     const userKey = String(user.id);
-    const position = GlobalBounds.toExpanded({
+    const position = {
         lat: user.lat,
         lng: user.lng
-    });
+    };
 
     if (userMarkers.has(userKey)) {
         const {marker, circle} = userMarkers.get(userKey)
@@ -187,29 +147,24 @@ function updateUserMarker(user) {
 }
 
 async function initMap() {
-    // Bound 초기화
-    GlobalBounds.init(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION, mapExpandRate);
-
     // map 객체 설정
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
+    // 구글맵 이미지 오버레이
+    const bounds = new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION);
     const overlay = new google.maps.GroundOverlay(
         `${SITE_URL}/assets/img/map.png`,
-        new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE),
+        bounds,
         {opacity: 1}
     );
     overlay.setMap(map);
 
     // fitBounds 적용
-    map.fitBounds(new google.maps.LatLngBounds(
-        GlobalBounds.expanded.SW,
-        GlobalBounds.expanded.NE,
-    ));
-
+    map.fitBounds(bounds);
     // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
         map.setZoom(TARGET_ZOOM_LEVEL);
-        map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
+        // map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
     });
 
     // 마커 생성
