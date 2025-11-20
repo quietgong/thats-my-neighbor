@@ -120,7 +120,7 @@ html, body {
 /* 모달 콘텐츠 기본 스타일 */
 .modal-content {
     background-color: white;
-    border-radius: 12px;
+    /*border-radius: 12px;*/
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.3s ease;
 }

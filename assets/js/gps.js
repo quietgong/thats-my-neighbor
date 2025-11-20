@@ -1,29 +1,4 @@
 let map;
-
-// ----------------------------
-// Offset 보정 설정
-// ----------------------------
-let Offset = {
-    lat: 0,
-    lng: 0,
-    enabled: true,
-};
-let overlay = null;
-let overlayBounds = {SW: null, NE: null}
-
-// ----------------------------
-// Kalman-style Smoothing
-// ----------------------------
-let Smoothing = {
-    enabled: true,
-    alpha: 0.12,
-    smoothLat(lat, prevLat) {
-        return prevLat * (1 - this.alpha) + lat * this.alpha;
-    },
-    smoothLng(lng, prevLng) {
-        return prevLng * (1 - this.alpha) + lng * this.alpha;
-    }
-};
 let MOCK_USERS = [
     {
         id: "user-" + Math.random().toString(36).substr(2, 9),
@@ -171,135 +146,41 @@ function updateUserMarker(user) {
     userMarkers.set(userKey, {marker, circle})
 }
 
-function bindOverlayAdjustEvents(swMarker, neMarker) {
-
-    function updateOverlay() {
-        overlayBounds.SW = swMarker.getPosition().toJSON();
-        overlayBounds.NE = neMarker.getPosition().toJSON();
-
-        // 기존 오버레이 제거
-        overlay.setMap(null);
-
-        // 새 오버레이 생성
-        overlay = new google.maps.GroundOverlay(
-            `${SITE_URL}/assets/img/map.png`,
-            new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
-            {opacity: 1}
-        );
-
-        overlay.setMap(map);
-    }
-
-    // 드래그 중 실시간 반영
-    swMarker.addListener("drag", updateOverlay);
-    neMarker.addListener("drag", updateOverlay);
-
-    // 드래그 종료 시 최종 좌표 출력
-    swMarker.addListener("dragend", () => showOverlayFinal());
-    neMarker.addListener("dragend", () => showOverlayFinal());
-}
-
-function showOverlayFinal() {
-    console.log("📌 최종 보정된 오버레이 좌표:", overlayBounds);
-
-    alert(
-        "📌 오버레이 최종 좌표\n\n" +
-        `SW → lat: ${overlayBounds.SW.lat},  lng: ${overlayBounds.SW.lng}\n` +
-        `NE → lat: ${overlayBounds.NE.lat},  lng: ${overlayBounds.NE.lng}`
-    );
-}
-
-function createOverlayAdjustMarkers() {
-
-    // SW corner marker
-    const swMarker = new google.maps.Marker({
-        position: overlayBounds.SW,
-        map,
-        draggable: true,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 7,
-            fillColor: "rgba(206,198,42,0.95)",
-            fillOpacity: 1,
-            strokeColor: "#fff",
-            strokeWeight: 2
-        }
-    });
-
-    // NE corner marker
-    const neMarker = new google.maps.Marker({
-        position: overlayBounds.NE,
-        map,
-        draggable: true,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 7,
-            fillColor: "rgba(206,198,42,0.95)",
-            fillOpacity: 1,
-            strokeColor: "#fff",
-            strokeWeight: 2
-        }
-    });
-
-    bindOverlayAdjustEvents(swMarker, neMarker);
-}
-
-
 async function initMap() {
     // map 객체 설정
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-    // 구글맵 이미지 오버레이
-    const bounds = new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION);
+    // 미술관 이미지 오버레이
+    const museumOverlay = new google.maps.GroundOverlay(
+        `${SITE_URL}/assets/img/museum.png`,
+        new google.maps.LatLngBounds(MUSEUM_SOUTH_WEST_POSITION, MUSEUM_NORTH_EAST_POSITION),
+        {opacity: 0.8}
+    );
 
-    overlayBounds.SW = {...GALLERY_SOUTH_WEST_POSITION};
-    overlayBounds.NE = {...GALLERY_NORTH_EAST_POSITION};
-
-    overlay = new google.maps.GroundOverlay(
-        `${SITE_URL}/assets/img/map.png`,
-        new google.maps.LatLngBounds(
-            overlayBounds.SW,
-            overlayBounds.NE
-        ),
+    // 전시장 이미지 오버레이
+    const galleryOverlay = new google.maps.GroundOverlay(
+        `${SITE_URL}/assets/img/gallery.png`,
+        new google.maps.LatLngBounds(GALLERY_SOUTH_WEST_POSITION, GALLERY_NORTH_EAST_POSITION),
         {opacity: 1}
     );
-    overlay.setMap(map);
 
-    // fitBounds 적용
-    map.fitBounds(new google.maps.LatLngBounds(
-        overlayBounds.SW,
-        overlayBounds.NE
-    ));
+    museumOverlay.setMap(map);
+    galleryOverlay.setMap(map);
+
+    // 화면에 딱 맞추기
+    map.fitBounds(MUSEUM_SOUTH_WEST_POSITION, MUSEUM_NORTH_EAST_POSITION);
+
     // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
-        createOverlayAdjustMarkers();
         map.setZoom(TARGET_ZOOM_LEVEL);
-        // map.panTo(new google.maps.LatLngBounds(GlobalBounds.expanded.SW, GlobalBounds.expanded.NE).getCenter());
     });
 
     // 마커 생성
-    // drawArtworkMarkers()
+    drawArtworkMarkers()
 
     // GPS 추적
     navigator.geolocation.watchPosition(handlePosition, handleError, {enableHighAccuracy: true});
 }
-
-// async function handlePosition(position) {
-//
-//     const gpsAccuracy = position.coords.accuracy;
-//     if (gpsAccuracy <= VALID_GPS_ACCURACY) {
-//         // 현재 나의 위치 정보 얻기
-//         currentUser.lat = position.coords.latitude;
-//         currentUser.lng = position.coords.longitude;
-//         console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
-//
-//         // 나의 위치 마커 업데이트
-//         updateUserMarker(currentUser);
-//
-//         // 나의 위치 DB 업로드
-//         await uploadMyCurrentLocation();
-//     }
-// }
 
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
     const R = 6371000; // 지구 반지름 (m)
@@ -394,7 +275,6 @@ function drawArtworkMarkers() {
     });
 }
 
-
 function getUserId() {
     const data = JSON.parse(localStorage.getItem("userId"));
     if (data) {
@@ -409,7 +289,6 @@ function getUserId() {
 function activateAr(objId) {
     const viewer = document.getElementById("hiddenViewer");
     viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
-    console.log(`src = ${viewer.src}`)
     viewer.activateAR();
 }
 
