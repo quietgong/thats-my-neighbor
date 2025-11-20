@@ -182,7 +182,7 @@ function bindOverlayAdjustEvents(swMarker, neMarker) {
 
         // 새 오버레이 생성
         overlay = new google.maps.GroundOverlay(
-            `${SITE_URL}/assets/img/map.png`,
+            `${SITE_URL}/assets/img/map-rotate.png`,
             new google.maps.LatLngBounds(overlayBounds.SW, overlayBounds.NE),
             {opacity: 1}
         );
@@ -256,7 +256,7 @@ async function initMap() {
     overlayBounds.NE = {...GALLERY_NORTH_EAST_POSITION};
 
     overlay = new google.maps.GroundOverlay(
-        `${SITE_URL}/assets/img/map.png`,
+        `${SITE_URL}/assets/img/map-rotate.png`,
         new google.maps.LatLngBounds(
             overlayBounds.SW,
             overlayBounds.NE
