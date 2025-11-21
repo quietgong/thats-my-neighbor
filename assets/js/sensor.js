@@ -4,7 +4,11 @@
 
 let map;
 const userMarkers = new Map();
-let currentUser = {id: "", lat: 0, lng: 0};
+let currentUser = {
+  id: getUserId(),
+  lat: (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2,
+  lng: (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2,
+};
 
 // DR 상태
 let filteredHeading = 0;
@@ -131,6 +135,7 @@ function handleGPS(pos) {
   const dist = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, cLat, cLng);
   if (dist > MAX_DEAD_RECKONING_DISTANCE) {
     alert("GPS 모드로 전환합니다.");
+    console.log(`GPS disatnce = ${dist}`);
     MODE = "GPS";
     currentUser.lat = pos.coords.latitude;
     currentUser.lng = pos.coords.longitude;
@@ -254,13 +259,10 @@ function cleanupOldUsers(activeIds) {
   }
 }
 
-function getUserId() {
-  const data = JSON.parse(localStorage.getItem("userId"));
-  if (data && data.value) return data.value;
-  const newId = "user-" + Math.random().toString(36).substr(2, 9);
-  const expire = Date.now() + 24 * 3600 * 1000;
-  localStorage.setItem("userId", JSON.stringify({value: newId, expire}));
-  return newId;
+function activateAr(objId) {
+    const viewer = document.getElementById("hiddenViewer");
+    viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
+    viewer.activateAR();
 }
 
 document.getElementById("startBtn").addEventListener("click", requestSensorPermissions);

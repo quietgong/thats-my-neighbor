@@ -255,3 +255,13 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
       Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
+// 로컬 스토리지의 userId
+function getUserId() {
+  const data = JSON.parse(localStorage.getItem("userId"));
+  if (data && data.value) return data.value;
+  const newId = "user-" + Math.random().toString(36).substr(2, 9);
+  const expire = Date.now() + 24 * 3600 * 1000;
+  localStorage.setItem("userId", JSON.stringify({value: newId, expire}));
+  return newId;
+}
