@@ -12,7 +12,6 @@ let velocity = 0;
 let stepStrength = 0;
 
 // 튜닝 값
-let stepMultiplier = 1.0;
 let speedMultiplier = 1.0;
 let headingOffset = 0;
 
@@ -268,4 +267,40 @@ document.addEventListener("DOMContentLoaded", () => {
   currentUser.lat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
   currentUser.lng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
   updateUserMarker(currentUser);
+});
+
+// =============================
+// 🧪 Dead-Reckoning 테스트 모드
+// =============================
+document.addEventListener("keydown", (e) => {
+  const moveStep = 0.0000008; // 이동량 (필요하면 조정)
+  const rotStep = 5; // 회전량 (deg)
+
+  switch (e.key.toLowerCase()) {
+    case "w": // forward
+      currentUser.lat += Math.cos(filteredHeading * Math.PI / 180) * moveStep;
+      currentUser.lng += Math.sin(filteredHeading * Math.PI / 180) * moveStep;
+      break;
+
+    case "s": // backward
+      currentUser.lat -= Math.cos(filteredHeading * Math.PI / 180) * moveStep;
+      currentUser.lng -= Math.sin(filteredHeading * Math.PI / 180) * moveStep;
+      break;
+
+    case "a": // left move
+      filteredHeading -= rotStep;
+      break;
+
+    case "d": // right move
+      filteredHeading += rotStep;
+      break;
+
+    case "q": // rotate left
+      filteredHeading -= rotStep;
+      break;
+
+    case "e": // rotate right
+      filteredHeading += rotStep;
+      break;
+  }
 });

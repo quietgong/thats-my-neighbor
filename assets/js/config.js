@@ -1,10 +1,9 @@
 const SITE_URL = window.location.protocol === "http:" ? window.location.origin : "https://quietgong.github.io/thats-my-neighbor";
 const API_BASE_URL = "https://rnd.api-plinqer.com/api";
 
-// 2배 확장
+// 지도 확장 상수값
 const SCALE_FACTOR = 1;
 
-// Dead-Reckoning, GPS 스위칭 범위
 // 전시장 중심으로부터 40m 넘으면 GPS 모드 전환
 const MAX_DEAD_RECKONING_DISTANCE = 40 * SCALE_FACTOR;
 
@@ -182,9 +181,14 @@ function computeBounds() {
   GALLERY_BOUNDS.NE = applyScale(GALLERY_BOUNDS, SCALE_FACTOR).NE;
 }
 
-const mode = prompt("A:(미술관), B:(청주), C:(플링커)");
 let MUSEUM_BOUNDS;
 let GALLERY_BOUNDS;
+
+// 오버레이 이미지
+const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
+const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
+
+const mode = prompt("A:(미술관), B:(청주), C:(플링커)");
 if (mode === "A") {
   MUSEUM_BOUNDS = {
     SW: {lat: 35.1088968, lng: 128.9421497},
@@ -231,16 +235,12 @@ const MAP_OPTIONS = {
   fullscreenControl: false,
   zoomControl: true,
   streetViewControl: false,
-  gestureHandling: "greddy",
+  gestureHandling: "greedy",
   // restriction: {
   //     latLngBounds: MAP_BOUNDS,
   //     strictBounds: false,
   // }
 };
-
-// 오버레이 이미지
-const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
-const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
 // Dead-Reckoning과 GPS 간 거리 비교에 사용
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
