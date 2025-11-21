@@ -16,8 +16,8 @@ let speedMultiplier = 1.0;
 let headingOffset = 0;
 
 // DR 파라미터
-const BASE_SPEED = 0.0000006; // 기존보다 4~5배 줄임
-const DECAY = 0.85;
+const BASE_SPEED = 0.00000015; // 0.015m (1.5cm)
+const DECAY = 0.75;            // 이동 잔여 속도 빨리 줄이기
 const FILTER = 0.15;
 
 // GPS/DR 모드
@@ -122,7 +122,7 @@ function handleStep(e) {
   const ay = e.accelerationIncludingGravity.y;
   const az = e.accelerationIncludingGravity.z;
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
-  if (mag > 15) stepStrength = 1;
+  if (mag > 18) stepStrength = 1;
 }
 
 function handleGPS(pos) {
@@ -130,6 +130,7 @@ function handleGPS(pos) {
   const cLng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
   const dist = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, cLat, cLng);
   if (dist > MAX_DEAD_RECKONING_DISTANCE) {
+    alert("GPS 모드로 전환합니다.");
     MODE = "GPS";
     currentUser.lat = pos.coords.latitude;
     currentUser.lng = pos.coords.longitude;
@@ -147,10 +148,12 @@ function tick() {
     stepStrength *= 0.5;
 
     const rad = filteredHeading * Math.PI / 180;
+
     let nextLat = currentUser.lat + Math.cos(rad) * velocity;
     let nextLng = currentUser.lng + Math.sin(rad) * velocity;
     nextLat = Math.max(GALLERY_BOUNDS.SW.lat, Math.min(nextLat, GALLERY_BOUNDS.NE.lat));
     nextLng = Math.max(GALLERY_BOUNDS.SW.lng, Math.min(nextLng, GALLERY_BOUNDS.NE.lng));
+
     currentUser.lat = nextLat;
     currentUser.lng = nextLng;
   }
