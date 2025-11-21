@@ -10,23 +10,12 @@ let currentUser = {
 let filteredHeading = 0;
 let velocity = 0;
 let stepStrength = 0;
-
-// 튜닝 값
-let headingOffset = 0;
+let lastUpdateTime = Date.now();
 
 // DR 파라미터
-const BASE_SPEED = 0.00000012; // 약 1.2cm
-const STEP_DISTANCE = 0.0000063; // 약 0.7m에 해당하는 lat/lng 단위
-const DECAY = 0.75; // 빠른 감쇠로 가속 억제
-const SPEED_FACTOR = 0.0000028;
-const FILTER = 0.15;
-
-let lastStepTime = 0;
-
-// 센서 안정화
-let threshold = 13;      // 초기 threshold
-let noiseBlockUntil = Date.now() + 2000;  // 초기에 2초간 step 감지 차단
-
+const SPEED_FACTOR = 0.0000011;
+const DECAY = 0.92; // 빠른 감쇠로 가속 억제
+const HEADING_FILTER = 0.15;
 
 // GPS/DR 모드
 let MODE = "DEAD_RECKONING";
@@ -111,16 +100,17 @@ async function requestSensorPermissions() {
 
 function handleHeading(e) {
   if (typeof e.alpha !== "number") return;
-  let h;
+  let heading;
   if (isIOS) {
     const orientation = window.screen.orientation?.angle || 0;
-    h = (e.alpha + orientation);
-    h = (360 - h) % 360;
+    heading = (e.alpha + orientation);
+    heading = (360 - heading) % 360;
   } else {
-    h = (360 - e.alpha) % 360;
+    heading = (360 - e.alpha) % 360;
   }
-  h += headingOffset;
-  filteredHeading = filteredHeading * (1 - FILTER) + h * FILTER;
+  filteredHeading =
+      filteredHeading * (1 - HEADING_FILTER) +
+      heading * HEADING_FILTER;
 }
 
 function handleStep(e) {
@@ -136,12 +126,8 @@ function handleStep(e) {
 
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-  if (mag > threshold) {
-    const now = Date.now();
-    if (now - lastStepTime > 250) {  // 걸음 최소 간격
-      velocity = STEP_DISTANCE;      // 정확한 이동량 0.7m
-      lastStepTime = now;
-    }
+  if (mag > 13) {
+    stepStrength = 1;
   }
   // 🔍 디버깅용 (원하면 표시)
   console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
@@ -149,18 +135,31 @@ function handleStep(e) {
 
 function tick() {
   if (MODE === "DEAD_RECKONING") {
-    velocity *= DECAY;
+    const now = Date.now();
+    const dt = (now - lastUpdateTime) / 1000;
+    lastUpdateTime = now;
 
-    if (velocity < 0.0000001) velocity = 0; // 완전 정지
+    if (stepStrength > 0) velocity += SPEED_FACTOR * stepStrength;
+    velocity *= DECAY;
+    stepStrength *= 0.5;
 
     const rad = filteredHeading * Math.PI / 180;
 
-    currentUser.lat += Math.cos(rad) * velocity;
-    currentUser.lng += Math.sin(rad) * velocity;
-  }
+    currentUser.lat = currentUser.lat + Math.cos(rad) * velocity;
+    currentUser.lng = currentUser.lng + Math.sin(rad) * velocity;
 
-  updateMyMarkers();
-  requestAnimationFrame(tick);
+    const me = userMarkers.get("me");
+    me.marker.setPosition(currentUser);
+    me.arrow.setPosition(currentUser);
+    me.arrow.setIcon({
+      path: "M 0 -20 L 10 0 L -10 0 Z",
+      fillColor: "#4285F4",
+      fillOpacity: 1,
+      scale: 1.3,
+      rotation: filteredHeading,
+    });
+    requestAnimationFrame(tick);
+  }
 }
 
 function handleGPS(pos) {
@@ -181,19 +180,6 @@ function handleGPS(pos) {
       MODE = "DEAD_RECKONING";
     }
   }
-}
-
-function updateMyMarkers() {
-  const me = userMarkers.get("me");
-  me.marker.setPosition({lat: currentUser.lat, lng: currentUser.lng});
-  me.arrow.setPosition({lat: currentUser.lat, lng: currentUser.lng});
-  me.arrow.setIcon({
-    path: "M 0 -20 L 10 0 L -10 0 Z",
-    scale: 1.3,
-    rotation: filteredHeading,
-    fillColor: "#4285F4",
-    fillOpacity: 1
-  });
 }
 
 async function uploadMyCurrentLocation() {
