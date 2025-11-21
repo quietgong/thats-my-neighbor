@@ -87,10 +87,10 @@
 <model-viewer id="hiddenViewer" src="" ar ar-modes="scene-viewer webxr quick-look"></model-viewer>
 
 <!-- AR 버튼 -->
-<div class="bottom-buttons">
-    <button class="temp-btn" onclick="activateAr('obj1')">AR 1</button>
-    <button class="temp-btn" onclick="activateAr('obj2')">AR 2</button>
-    <button class="temp-btn" onclick="activateAr('obj3')">AR 3</button>
+<div class="ar-buttons">
+    <button class="ar-btn" onclick="activateAr('obj1')">AR 1</button>
+    <button class="ar-btn" onclick="activateAr('obj2')">AR 2</button>
+    <button class="ar-btn" onclick="activateAr('obj3')">AR 3</button>
 </div>
 
 <script src="assets/js/library/axios.js"></script>      <!-- axios 라이브러리 -->
@@ -99,8 +99,8 @@
 <script src="assets/js/config.js"></script> <!-- 공통 설정 JS -->
 <script src="assets/js/layout.js"></script> <!-- 디자인 레이아웃 JS -->
 <script src="assets/js/gps.js"></script>    <!-- GPS 기반 위치 설정 -->
-
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script> <!-- 구글맵 라이브러리 -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script> <!-- 모델뷰어 라이브러리 -->
+<script src="assets/js/mock.js"></script>   <!-- GPS 데이터 모킹 -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWPSVN1TW12SmBeGjHiahIuTQ32fyRsK4&callback=initMap" async defer></script>  <!-- 구글맵 라이브러리 -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>                        <!-- 모델뷰어 라이브러리 -->
 </body>
 </html>

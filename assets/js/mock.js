@@ -1,7 +1,7 @@
 function moveAllMockUsers() {
     MOCK_USERS = MOCK_USERS.map(user => {
         let newPos = getRandomNearbyPosition(user, 3); // 3m 정도 이동
-        newPos = clampPositionToBounds(newPos, GALLERY_BOUNDS);
+        newPos = clampPositionToBounds(newPos, MUSEUM_BOUNDS);
 
         return {
             ...user,
@@ -20,7 +20,7 @@ function getRandomNearbyPosition(current, maxMoveMeters = 3) {
 
 function clampPositionToBounds(pos, bounds) {
     return {
-        lat: Math.min(bounds.north, Math.max(bounds.south, pos.lat)),
-        lng: Math.min(bounds.east, Math.max(bounds.west, pos.lng)),
+        lat: Math.min(bounds.NE.lat, Math.max(bounds.SW.lat, pos.lat)),
+        lng: Math.min(bounds.NE.lng, Math.max(bounds.SW.lng, pos.lng)),
     };
 }

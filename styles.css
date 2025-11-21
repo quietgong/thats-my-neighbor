@@ -228,7 +228,7 @@ model-viewer {
    하단 임시 버튼 3개
    ============================================ */
 
-.bottom-buttons {
+.ar-buttons {
     position: fixed;
     bottom: 20px;
     width: 100%;
@@ -238,7 +238,7 @@ model-viewer {
     z-index: 50;
 }
 
-.temp-btn {
+.ar-btn {
     padding: 12px 20px;
     background: #707b92;
     color: #fff;

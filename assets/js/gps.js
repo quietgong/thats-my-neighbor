@@ -26,8 +26,9 @@ let MOCK_USERS = [
     lng: CENTER_GALLERY_POSITION["lng"],
   }
 ];
+let isGpsInitialized = false;
 const userMarkers = new Map();
-const currentUser = {id: "", lat: 0, lng: 0};
+const currentUser = {id: "", lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]};
 
 // APIs
 async function uploadMyCurrentLocation() {
@@ -155,11 +156,12 @@ async function initMap() {
 }
 
 async function handleGPS(position) {
-  if (position.coords.accuracy <= VALID_GPS_ACCURACY) {
+  if (isGpsInitialized && position.coords.accuracy <= VALID_GPS_ACCURACY) {
     // 현재 나의 위치 정보 얻기
     currentUser.lat = position.coords.latitude;
     currentUser.lng = position.coords.longitude;
     console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
+    isGpsInitialized = true;
 
     // 나의 위치 마커 업데이트
     updateUserMarker(currentUser);
@@ -196,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
   currentUser.id = getUserIdFromLocalStorage();
 
   if (USE_MOCK) {
-    MOCK_USERS.push({id: currentUser["id"], lat: 0, lng: 0});
+    MOCK_USERS.push({id: currentUser["id"], lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]});
     setInterval(async () => {
       moveAllMockUsers();
       await updateUsersLocation();
