@@ -20,7 +20,7 @@ let speedMultiplier = 1.0;
 let headingOffset = 0;
 
 // DR 파라미터
-const BASE_SPEED = 0.00000015; // 0.015m (1.5cm)
+const BASE_SPEED = 0.00000015; // 0.15m (15cm)
 const DECAY = 0.75;            // 이동 잔여 속도 빨리 줄이기
 const FILTER = 0.15;
 
@@ -100,8 +100,8 @@ async function requestSensorPermissions() {
   navigator.geolocation.watchPosition(handleGPS, () => {
   }, {enableHighAccuracy: true});
   // 위치 공유 루프
-  setInterval(uploadMyCurrentLocation, 1000);
-  setInterval(updateUsersLocation, 1000);
+  // setInterval(uploadMyCurrentLocation, 1000);
+  // setInterval(updateUsersLocation, 1000);
   requestAnimationFrame(tick);
 }
 
@@ -129,20 +129,22 @@ function handleStep(e) {
 }
 
 function handleGPS(pos) {
-  const dist = getDistanceMeters(
-      pos.coords.latitude,
-      pos.coords.longitude,
-      CENTER_GALLERY_POSITION.lat,
-      CENTER_GALLERY_POSITION.lng
-  );
-  if (dist > MAX_DEAD_RECKONING_DISTANCE) {
-    alert("GPS 모드로 전환합니다.");
-    console.log(`GPS disatnce = ${dist}`);
-    MODE = "GPS";
-    currentUser.lat = pos.coords.latitude;
-    currentUser.lng = pos.coords.longitude;
-  } else {
-    MODE = "DEAD_RECKONING";
+  if (pos.coords.accuracy <= 40) {
+    const dist = getDistanceMeters(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        CENTER_GALLERY_POSITION.lat,
+        CENTER_GALLERY_POSITION.lng
+    );
+    if (dist > MAX_DEAD_RECKONING_DISTANCE) {
+      alert("GPS 모드로 전환합니다.");
+      console.log(`GPS disatnce = ${dist}`);
+      MODE = "GPS";
+      currentUser.lat = pos.coords.latitude;
+      currentUser.lng = pos.coords.longitude;
+    } else {
+      MODE = "DEAD_RECKONING";
+    }
   }
 }
 
@@ -262,9 +264,9 @@ function cleanupOldUsers(activeIds) {
 }
 
 function activateAr(objId) {
-    const viewer = document.getElementById("hiddenViewer");
-    viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
-    viewer.activateAR();
+  const viewer = document.getElementById("hiddenViewer");
+  viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
+  viewer.activateAR();
 }
 
 document.getElementById("startBtn").addEventListener("click", requestSensorPermissions);
