@@ -139,32 +139,18 @@ function handleStep(e) {
   const az = e.accelerationIncludingGravity.z;
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-  // 🧪 센서값 그래프 로깅
-  console.log(`mag:${mag.toFixed(2)} threshold:${dynamicThreshold.toFixed(2)}`);
+  // ✔ 정지(9~10), 움직임(11~) 실측 기반 threshold
+  const threshold = 10.5;
 
-  // 버퍼 채우기 (동적 threshold용)
-  sampleBuffer.push(mag);
-  if (sampleBuffer.length > bufferSize) sampleBuffer.shift();
+  // 🔍 디버깅용 (원하면 표시)
+  console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
 
-  // 표준편차 기반 threshold 자동 보정
-  if (sampleBuffer.length === bufferSize) {
-    const mean = sampleBuffer.reduce((a, b) => a + b, 0) / sampleBuffer.length;
-    const variance = sampleBuffer.reduce((a, b) => a + (b - mean) ** 2, 0) / sampleBuffer.length;
-    const stdDev = Math.sqrt(variance);
-
-    // 중력 9.8 기준, 걷기 11~14 기준 → 평균 + 표준편차 * 계수
-    dynamicThreshold = mean + stdDev * 1.2;
-  }
-
-  // 걸음 감지 조건
-  if (mag > dynamicThreshold) {
-    if (now - lastStepTime >= 250) {  // 최소 0.25초 간격
-      stepStrength = 1;
-      lastStepTime = now;
-    }
+  // ✔ 최소 0.25초 간격 유지 (실걸음 속도와 동일)
+  if (mag > threshold && (now - lastStepTime) >= 250) {
+    stepStrength = 1;
+    lastStepTime = now;
   }
 }
-
 
 function handleGPS(pos) {
   if (pos.coords.accuracy <= 40) {
