@@ -116,17 +116,13 @@ function handleHeading(e) {
 function handleStep(e) {
   if (!e.accelerationIncludingGravity) return;
 
-  // 🔒 초기 노이즈 2초 차단
-  const now = Date.now();
-  if (now < noiseBlockUntil) return;
-
   const ax = e.accelerationIncludingGravity.x;
   const ay = e.accelerationIncludingGravity.y;
   const az = e.accelerationIncludingGravity.z;
 
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-  if (mag > 13) {
+  if (mag > 12) {
     stepStrength = 1;
   }
   // 🔍 디버깅용 (원하면 표시)
