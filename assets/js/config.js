@@ -1,12 +1,5 @@
 const SITE_URL = window.location.protocol === "http:" ? window.location.origin : "https://quietgong.github.io/thats-my-neighbor";
-const API_BASE_URL = "https://rnd.api-plinqer.com/api";
-
-// 지도 확장 상수값
-const SCALE_FACTOR = 1;
-
-// 전시장 중심으로부터 40m 넘으면 GPS 모드 전환
-const MAX_DEAD_RECKONING_DISTANCE = 40 * SCALE_FACTOR;
-
+const API_BASE_URL = "https://rnd.api-plinqer.com/api" // 서버 API baseUrl
 const MAP_STYLE = [
   {featureType: "poi", stylers: [{visibility: "off"}]},
   {featureType: "transit", stylers: [{visibility: "off"}]},
@@ -136,8 +129,10 @@ const MAP_STYLE = [
     ]
   }
 ];
-
-const TARGET_ZOOM_LEVEL = 22;
+const TARGET_ZOOM_LEVEL = 22; // 실제로 적용할 줌 레벨
+const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
+const VALID_GPS_ACCURACY = 40; // 업데이트할만한 GPS 정확도 기준
+const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
@@ -147,41 +142,10 @@ const MAP_BOUNDS = {
   east: 128.957813,
 };
 
-/******************************************************
- * CONFIG — 전체 좌표 / 확장 / 테스트 모드 / 변환 처리
- ******************************************************/
-
-function computeBounds() {
-  function applyScale(bounds, scale) {
-    const north = bounds.NE.lat;
-    const south = bounds.SW.lat;
-    const east = bounds.NE.lng;
-    const west = bounds.SW.lng;
-
-    const centerLat = (north + south) / 2;
-    const centerLng = (east + west) / 2;
-
-    return {
-      SW: {
-        lat: centerLat + (south - centerLat) * scale,
-        lng: centerLng + (west - centerLng) * scale
-      },
-      NE: {
-        lat: centerLat + (north - centerLat) * scale,
-        lng: centerLng + (east - centerLng) * scale
-      }
-    };
-  }
-
-  // 전역 Bounds 값 업데이트
-  MUSEUM_BOUNDS.SW = applyScale(MUSEUM_BOUNDS, SCALE_FACTOR).SW;
-  MUSEUM_BOUNDS.NE = applyScale(MUSEUM_BOUNDS, SCALE_FACTOR).NE;
-
-  GALLERY_BOUNDS.SW = applyScale(GALLERY_BOUNDS, SCALE_FACTOR).SW;
-  GALLERY_BOUNDS.NE = applyScale(GALLERY_BOUNDS, SCALE_FACTOR).NE;
-}
-
+// 미술관 지도 범위 (부산현대미술관)
 let MUSEUM_BOUNDS;
+
+// 전시장 지도 범위 (부산현대미술관 2F)
 let GALLERY_BOUNDS;
 
 // 오버레이 이미지
@@ -215,15 +179,13 @@ if (mode === "3") {
     SW: {lat: 36.6400589, lng: 127.4395283},
     NE: {lat: 36.6413760, lng: 127.4409951}
   };
-
   GALLERY_BOUNDS = {
     SW: {lat: 36.6405331, lng: 127.4400923},
     NE: {lat: 36.6406769, lng: 127.4402677}
   };
 }
 
-computeBounds();
-
+// 전시장 가운데 위치
 const CENTER_GALLERY_POSITION = {
   lat: (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2,
   lng: (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2,
@@ -231,10 +193,7 @@ const CENTER_GALLERY_POSITION = {
 
 // 지도 옵션
 const MAP_OPTIONS = {
-  center: {
-    lat: (GALLERY_BOUNDS["SW"]["lat"] + GALLERY_BOUNDS["NE"]["lat"]) / 2,
-    lng: (GALLERY_BOUNDS["SW"]["lng"] + GALLERY_BOUNDS["NE"]["lng"]) / 2
-  },
+  center: CENTER_GALLERY_POSITION,
   zoom: 20, // 줌 레벨 설정
   styles: MAP_STYLE,
   mapTypeControl: false,
@@ -248,26 +207,18 @@ const MAP_OPTIONS = {
   // }
 };
 
-// Dead-Reckoning과 GPS 간 거리 비교에 사용
-function getDistanceMeters(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const toRad = x => x * Math.PI / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-// 로컬 스토리지의 userId
-function getUserId() {
-  const data = JSON.parse(localStorage.getItem("userId"));
-  if (data && data.value) return data.value;
-  const newId = "user-" + Math.random().toString(36).substr(2, 9);
-  const expire = Date.now() + 24 * 3600 * 1000;
-  localStorage.setItem("userId", JSON.stringify({value: newId, expire}));
-  return newId;
-}
+// 설치물 정보
+const ART_WORKS = [
+  {
+    name: "조각 A",
+    position: {lat: 35.109507561984636, lng: 128.94274269094618},
+    size: {width: 120, height: 120},
+    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
+  },
+  {
+    name: "회화 B",
+    position: {lat: 35.10941610576727, lng: 128.94272896192697},
+    size: {width: 120, height: 120},
+    imageUrl: `${SITE_URL}/assets/img/artwork.png`,
+  },
+];
