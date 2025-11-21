@@ -152,7 +152,7 @@ let GALLERY_BOUNDS;
 const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
 const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
-const mode = "3";
+const mode = "2";
 // const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
 if (mode === "1") {
   MUSEUM_BOUNDS = {

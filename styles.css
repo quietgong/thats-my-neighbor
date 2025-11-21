@@ -80,8 +80,8 @@ html, body {
 /* INFO 이미지 크기: 로고 대비 크게 */
 .info-btn img {
     top:1vh;
-    width: 12vw;
-    max-width: 80px;
+    width: 1vw;
+    max-width: 40px;
     min-width: 40px;
     height: auto;
 }
@@ -120,7 +120,6 @@ html, body {
 /* 모달 콘텐츠 기본 스타일 */
 .modal-content {
     background-color: white;
-    /*border-radius: 12px;*/
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.3s ease;
 }
@@ -140,7 +139,7 @@ html, body {
 .modal-content-scrollable {
     width: 90%;
     max-width: 600px;
-    max-height: 85vh;
+    max-height: 60vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -188,6 +187,25 @@ html, body {
 /* 정보 섹션 */
 .info-section {
     margin-bottom: 24px;
+}
+
+/* 모달 이미지 컨테이너 */
+.info-section .logo-images {
+    display: flex;
+    justify-content: center;   /* 가운데 정렬 */
+    align-items: center;
+    gap: 16px;                 /* 이미지 간 간격 */
+    margin-top: 16px;
+    flex-wrap: wrap;           /* 화면 좁을 때 자동 줄바꿈 */
+}
+
+/* 모달 이미지 스타일 */
+.info-section .logo-images img {
+    max-width: 200px;          /* 너무 커지지 않도록 제한 */
+    width: 40%;                /* 비율 유지하며 반응형 */
+    height: auto;              /* 비율 자동 유지 */
+    object-fit: contain;
+    display: block;
 }
 
 .language-buttons {
@@ -275,7 +293,7 @@ model-viewer {
     }
 
     .modal-content-scrollable {
-        max-height: 90vh;
+        max-height: 60vh;
     }
 
     .modal-body {

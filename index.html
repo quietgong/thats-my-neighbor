@@ -24,59 +24,54 @@
     </section>
 </div>
 
-<!-- 안내 모달 (초기 로딩 시) -->
+<!-- 가이드 모달 (초기 로딩 시) -->
 <div class="modal" id="instructionModal">
     <div class="modal-content modal-content-scrollable">
         <div class="language-buttons">
-            <button id="btnKR">한국어</button>
-            <button id="btnEN">EN</button>
+            <button onclick="switchLanguage('kr')">한국어</button>
+            <button onclick="switchLanguage('en')">EN</button>
         </div>
 
         <div class="modal-body">
             <div class="info-section">
-                <h3 class="trans" data-kr="That's my neighbor 관람 안내" data-en="Guide to Viewing 'That's my neighbor'">
-                    That's my neighbor 관람 안내
+                <h3 id="guide-title"
+                    class="trans"
+                    data-kr="댓츠 마이 네이버 관람 안내"
+                    data-en="Guide to Viewing 'That's My Neighbour'">
+                    댓츠 마이 네이버 관람 안내
                 </h3>
 
-                <p class="trans" data-kr="위치 정보 권한을 허용을 클릭해주세요."
-                   data-en="Please allow location permission.">
-                    위치 정보 권한을 허용을 클릭해주세요.
-                </p>
-
-                <p class="trans" data-kr="우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요."
-                   data-en="Tap the INFO button at the top right to see artwork information.">
-                    우측 상단의 INFO 버튼을 눌러 작품 정보를 확인하세요.
-                </p>
+                <div id="guide-text" class="guide-text"></div>
             </div>
         </div>
 
-        <button class="modal-close" id="startBtn">시작하기</button>
+
+        <button id="startBtn" class="modal-close">시작하기</button>
     </div>
 </div>
 
 <!-- INFO 모달 -->
 <div class="modal" id="infoModal">
     <div class="modal-content modal-content-scrollable">
+        <div class="language-buttons">
+            <button onclick="switchLanguage('kr')">한국어</button>
+            <button onclick="switchLanguage('en')">EN</button>
+        </div>
         <div class="modal-body">
-            <!-- 작품 정보 -->
             <div class="info-section">
-                <h3>작품 정보</h3>
-                <p><strong>제목:</strong> That's my neighbor</p>
-                <p><strong>기간:</strong> 2025년 11월 29일 ~ 12월 3일</p>
-                <p><strong>장소:</strong> 부산현대미술관</p>
-            </div>
+                <h3 id="info-title"
+                    class="trans"
+                    data-kr="더 파일룸의 ⟨댓츠 마이 네이버⟩에 오신 것을 환영합니다. ⟨댓츠 마이 네이버⟩는 부산 영도에서 만날 수 있는 진정한 '이웃'을 찾아 떠나는 여정이 담긴 작품입니다. 이곳에서는 사람뿐 아니라 녹슨 철근, 담벼락의 이끼, 하구의 작은 생명체들까지 모두가 소중한 이웃입니다."
+                    data-en="Welcome to The File Room's That's My Neighbour. That's My Neighbour is a work that captures a journey in search of the true 'neighbours' one can encounter in Yeongdo, Busan. Here, not only people but also rusted rebar, moss on walls, and tiny creatures in the estuary are all precious neighbours.">
+                    더 파일룸의 ⟨댓츠 마이 네이버⟩에 오신 것을 환영합니다. ⟨댓츠 마이 네이버⟩는 부산 영도에서 만날 수 있는 진정한 '이웃'을 찾아 떠나는 여정이 담긴 작품입니다. 이곳에서는 사람뿐 아니라 녹슨 철근, 담벼락의 이끼, 하구의 작은 생명체들까지 모두가
+                    소중한 이웃입니다.
+                </h3>
 
-            <!-- 크레딧 -->
-            <div class="info-section">
-                <h3>크레딧</h3>
-                <p><strong>큐레이터:</strong> 이민정</p>
-                <p><strong>아티스트:</strong> 신하라
-            </div>
-
-            <!-- 상세 설명 -->
-            <div class="info-section">
-                <h3>전시 설명</h3>
-                <p>전시 설명</p>
+                <div id="info-text" class="info-text"></div>
+                <div class="logo-images">
+                    <img src="assets/img/fileroom_logo.png" alt="파일룸 로고">
+                    <img src="assets/img/museum_logo.png" alt="미술관 로고">
+                </div>
             </div>
         </div>
         <button class="modal-close" id="closeInfo" aria-label="닫기">닫기</button>
