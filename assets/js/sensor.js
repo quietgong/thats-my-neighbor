@@ -13,7 +13,7 @@ let stepStrength = 0;
 let lastUpdateTime = Date.now();
 
 // DR 파라미터
-const SPEED_FACTOR = 0.0000011;
+const SPEED_FACTOR = 0.000010;
 const DECAY = 0.92; // 빠른 감쇠로 가속 억제
 const HEADING_FILTER = 0.15;
 
@@ -126,7 +126,7 @@ function handleStep(e) {
     stepStrength = 1;
   }
   // 🔍 디버깅용 (원하면 표시)
-  console.log(`mag: ${mag.toFixed(2)} threshold: 12`);
+  console.log(`mag: ${mag.toFixed(2)}, threshold: 12, SPEED_FACTOR: ${SPEED_FACTOR}, velocity: ${velocity}, stepStrength: ${stepStrength}`);
 }
 
 function tick() {
