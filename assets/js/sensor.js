@@ -1,7 +1,3 @@
-/******************************************************
- * SENSOR — Dead-Reckoning + GPS + 위치 공유 완전체
- ******************************************************/
-
 let map;
 const userMarkers = new Map();
 let currentUser = {
@@ -21,13 +17,14 @@ let headingOffset = 0;
 
 // DR 파라미터
 const BASE_SPEED = 0.00000012; // 약 1.2cm
-const DECAY = 0.70;            // 빠른 감쇠로 가속 억제
-
+const DECAY = 0.92;            // 빠른 감쇠로 가속 억제
+const SPEED_FACTOR = 0.0000028;
 const FILTER = 0.15;
 
 // 센서 안정화
+let isMoving = false;
 let lastStepTime = 0;
-let dynamicThreshold = 12.5;      // 초기 threshold
+let threshold = 13;      // 초기 threshold
 let sampleBuffer = [];            // 센서값 샘플 저장
 let bufferSize = 20;              // 표준편차 계산용 샘플 수
 let noiseBlockUntil = Date.now() + 2000;  // 초기에 2초간 step 감지 차단
@@ -131,25 +128,38 @@ function handleHeading(e) {
 function handleStep(e) {
   if (!e.accelerationIncludingGravity) return;
 
+  // 🔒 초기 노이즈 2초 차단
   const now = Date.now();
-  if (now < noiseBlockUntil) return; // 🔒 초기 노이즈 2초 차단
+  if (now < noiseBlockUntil) return;
 
   const ax = e.accelerationIncludingGravity.x;
   const ay = e.accelerationIncludingGravity.y;
   const az = e.accelerationIncludingGravity.z;
+
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-  // ✔ 정지(9~10), 움직임(11~) 실측 기반 threshold
-  const threshold = 11;
-
+  if (mag > threshold) stepStrength = 1;
   // 🔍 디버깅용 (원하면 표시)
   console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
+}
 
-  // ✔ 최소 0.25초 간격 유지 (실걸음 속도와 동일)
-  if (mag > threshold && (now - lastStepTime) >= 250) {
-    stepStrength = 1;
-    lastStepTime = now;
+function tick() {
+  if (MODE === "DEAD_RECKONING") {
+    if (stepStrength > 0) velocity += SPEED_FACTOR * stepStrength;
+    velocity *= DECAY;
+    stepStrength *= 0.5;
+
+    const rad = filteredHeading * Math.PI / 180;
+
+    let nextLat = currentUser.lat + Math.cos(rad) * velocity;
+    let nextLng = currentUser.lng + Math.sin(rad) * velocity;
+
+    currentUser.lat = nextLat;
+    currentUser.lng = nextLng;
   }
+
+  updateMyMarkers();
+  requestAnimationFrame(tick);
 }
 
 function handleGPS(pos) {
@@ -170,30 +180,6 @@ function handleGPS(pos) {
       MODE = "DEAD_RECKONING";
     }
   }
-}
-
-function tick() {
-  if (MODE === "DEAD_RECKONING") {
-    const speed = BASE_SPEED * speedMultiplier * SCALE_FACTOR;
-
-    if (stepStrength > 0) velocity += speed;
-    velocity *= DECAY;
-    stepStrength *= 0.5;
-
-    // 🚫 velocity 폭주 방지
-    if (velocity > 0.0000018) velocity = 0.0000018;
-
-    const rad = filteredHeading * Math.PI / 180;
-
-    let nextLat = currentUser.lat + Math.cos(rad) * velocity;
-    let nextLng = currentUser.lng + Math.sin(rad) * velocity;
-
-    currentUser.lat = nextLat;
-    currentUser.lng = nextLng;
-  }
-
-  updateMyMarkers();
-  requestAnimationFrame(tick);
 }
 
 function updateMyMarkers() {
@@ -300,7 +286,6 @@ document.getElementById("startBtn").addEventListener("click", requestSensorPermi
 // =============================
 // 🧪 Dead-Reckoning 테스트 모드
 // =============================
-// HTML body 끝에 div 만들기
 const debugBox = document.createElement("div");
 debugBox.style.cssText = `
   position:fixed; bottom:0; left:0; right:0;
