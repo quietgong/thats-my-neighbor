@@ -223,6 +223,11 @@ if (mode === "C") {
 
 computeBounds();
 
+const CENTER_GALLERY_POSITION = {
+  lat: (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2,
+  lng: (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2,
+}
+
 // 지도 옵션
 const MAP_OPTIONS = {
   center: {

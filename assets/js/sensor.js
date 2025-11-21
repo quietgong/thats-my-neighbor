@@ -60,7 +60,7 @@ async function initMap() {
   /** 내 마커 등록 (중요!) */
   const myMarker = new google.maps.Marker({
     map,
-    position: {lat: currentUser.lat, lng: currentUser.lng},
+    position: CENTER_GALLERY_POSITION,
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: 9,
@@ -70,10 +70,9 @@ async function initMap() {
       strokeWeight: 2
     }
   });
-
   const myArrow = new google.maps.Marker({
     map,
-    position: {lat: currentUser.lat, lng: currentUser.lng},
+    position: CENTER_GALLERY_POSITION,
     icon: {
       path: "M 0 -20 L 10 0 L -10 0 Z",
       scale: 1.3,
@@ -130,9 +129,12 @@ function handleStep(e) {
 }
 
 function handleGPS(pos) {
-  const cLat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
-  const cLng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
-  const dist = getDistanceMeters(pos.coords.latitude, pos.coords.longitude, cLat, cLng);
+  const dist = getDistanceMeters(
+      pos.coords.latitude,
+      pos.coords.longitude,
+      CENTER_GALLERY_POSITION.lat,
+      CENTER_GALLERY_POSITION.lng
+  );
   if (dist > MAX_DEAD_RECKONING_DISTANCE) {
     alert("GPS 모드로 전환합니다.");
     console.log(`GPS disatnce = ${dist}`);
@@ -156,8 +158,8 @@ function tick() {
 
     let nextLat = currentUser.lat + Math.cos(rad) * velocity;
     let nextLng = currentUser.lng + Math.sin(rad) * velocity;
-    nextLat = Math.max(GALLERY_BOUNDS.SW.lat, Math.min(nextLat, GALLERY_BOUNDS.NE.lat));
-    nextLng = Math.max(GALLERY_BOUNDS.SW.lng, Math.min(nextLng, GALLERY_BOUNDS.NE.lng));
+    // nextLat = Math.max(GALLERY_BOUNDS.SW.lat, Math.min(nextLat, GALLERY_BOUNDS.NE.lat));
+    // nextLng = Math.max(GALLERY_BOUNDS.SW.lng, Math.min(nextLng, GALLERY_BOUNDS.NE.lng));
 
     currentUser.lat = nextLat;
     currentUser.lng = nextLng;
@@ -266,13 +268,6 @@ function activateAr(objId) {
 }
 
 document.getElementById("startBtn").addEventListener("click", requestSensorPermissions);
-
-document.addEventListener("DOMContentLoaded", () => {
-  currentUser["id"] = getUserId();
-  currentUser.lat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
-  currentUser.lng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
-  updateUserMarker(currentUser);
-});
 
 // =============================
 // 🧪 Dead-Reckoning 테스트 모드
