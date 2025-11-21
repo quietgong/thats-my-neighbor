@@ -6,7 +6,7 @@ let map;
 const userMarkers = new Map();
 
 // 내 위치
-let currentUser = { userId: "", lat: 0, lng: 0 };
+let currentUser = { id: "", lat: 0, lng: 0 };
 
 // DR 상태
 let filteredHeading = 0;
@@ -27,23 +27,6 @@ const FILTER = 0.15;
 let MODE = "DEAD_RECKONING";
 
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-
-/******************************************************
- * 0) User ID
- ******************************************************/
-function getUserId() {
-    const data = JSON.parse(localStorage.getItem("userId"));
-    if (data && data.value) {
-        return data.value;
-    }
-
-    const newId = "user-" + Math.random().toString(36).substr(2, 9);
-    const expire = Date.now() + 24 * 3600 * 1000;
-
-    localStorage.setItem("userId", JSON.stringify({ value: newId, expire }));
-    return newId;
-}
 
 
 /******************************************************
@@ -70,8 +53,6 @@ function mapImageOverlay(type) {
 
 
 async function initMap() {
-    currentUser.userId = getUserId();
-
     map = new google.maps.Map(document.getElementById("map"), MAP_OPTIONS);
 
     mapImageOverlay("MUSEUM");
@@ -84,7 +65,7 @@ async function initMap() {
     /** 내 마커 등록 (중요!) */
     const myMarker = new google.maps.Marker({
         map,
-        position: { lat: 0, lng: 0 },
+        position: { lat: currentUser.lat, lng: currentUser.lng },
         icon: {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 9,
@@ -97,7 +78,7 @@ async function initMap() {
 
     const myArrow = new google.maps.Marker({
         map,
-        position: { lat: 0, lng: 0 },
+        position: { lat: currentUser.lat, lng: currentUser.lng },
         icon: {
             path: "M 0 -20 L 10 0 L -10 0 Z",
             scale: 1.3,
@@ -192,17 +173,9 @@ function handleGPS(pos) {
 /******************************************************
  * 6) Dead-Reckoning 이동
  ******************************************************/
-let drInitialized = false;
 function tick() {
     if (MODE === "DEAD_RECKONING") {
-        // ⭐ DEAD_RECORDING 최초 1회에만 중앙 위치로 세팅
-        if (!drInitialized) {
-            currentUser.lat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
-            currentUser.lng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
-            drInitialized = true;
-        }
-
-        const speed = BASE_SPEED * speedMultiplier * SCALE_FACTOR;
+      const speed = BASE_SPEED * speedMultiplier * SCALE_FACTOR;
 
         if (stepStrength > 0) velocity += speed;
         velocity *= DECAY;
@@ -250,7 +223,7 @@ function updateMyMarkers() {
 async function uploadMyCurrentLocation() {
     try {
         await axios.post(`${API_BASE_URL}/locations`, {
-            userId: currentUser.userId,
+            userId: currentUser.id,
             latitude: currentUser.lat,
             longitude: currentUser.lng,
             heading: filteredHeading
@@ -266,7 +239,7 @@ async function uploadMyCurrentLocation() {
  ******************************************************/
 async function updateUsersLocation() {
     try {
-        const res = await axios.get(`${API_BASE_URL}/locations/${currentUser.userId}`);
+        const res = await axios.get(`${API_BASE_URL}/locations/${currentUser.id}`);
         const users = res.data.data || [];
 
         const active = new Set(users.map(u => String(u.id)));
@@ -285,7 +258,7 @@ async function updateUsersLocation() {
  ******************************************************/
 function updateUserMarker(user) {
     const key = String(user.id);
-    if (key === String(currentUser.userId)) return;
+    if (key === String(currentUser.id)) return;
 
     let entry = userMarkers.get(key);
 
@@ -338,3 +311,26 @@ function cleanupOldUsers(activeIds) {
         }
     }
 }
+
+/******************************************************
+ * 0) User ID
+ ******************************************************/
+function getUserId() {
+    const data = JSON.parse(localStorage.getItem("userId"));
+    if (data && data.value) {
+        return data.value;
+    }
+
+    const newId = "user-" + Math.random().toString(36).substr(2, 9);
+    const expire = Date.now() + 24 * 3600 * 1000;
+
+    localStorage.setItem("userId", JSON.stringify({ value: newId, expire }));
+    return newId;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    currentUser["id"] = getUserId();
+    currentUser.lat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
+    currentUser.lng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
+    updateUserMarker(currentUser);
+});

@@ -182,7 +182,7 @@ function computeBounds() {
     GALLERY_BOUNDS.NE = applyScale(GALLERY_BOUNDS, SCALE_FACTOR).NE;
 }
 
-const mode = prompt("A:(test), B:(미술관)");
+const mode = prompt("A:(미술관), B:(청주)");
 let MUSEUM_BOUNDS;
 let GALLERY_BOUNDS;
 if (mode === "A") {
