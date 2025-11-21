@@ -20,9 +20,18 @@ let speedMultiplier = 1.0;
 let headingOffset = 0;
 
 // DR 파라미터
-const BASE_SPEED = 0.00000015; // 0.15m (15cm)
-const DECAY = 0.75;            // 이동 잔여 속도 빨리 줄이기
+const BASE_SPEED = 0.00000012; // 약 1.2cm
+const DECAY = 0.70;            // 빠른 감쇠로 가속 억제
+
 const FILTER = 0.15;
+
+// 센서 안정화
+let lastStepTime = 0;
+let dynamicThreshold = 12.5;      // 초기 threshold
+let sampleBuffer = [];            // 센서값 샘플 저장
+let bufferSize = 20;              // 표준편차 계산용 샘플 수
+let noiseBlockUntil = Date.now() + 2000;  // 초기에 2초간 step 감지 차단
+
 
 // GPS/DR 모드
 let MODE = "DEAD_RECKONING";
@@ -121,12 +130,41 @@ function handleHeading(e) {
 
 function handleStep(e) {
   if (!e.accelerationIncludingGravity) return;
+
+  const now = Date.now();
+  if (now < noiseBlockUntil) return; // 🔒 초기 노이즈 2초 차단
+
   const ax = e.accelerationIncludingGravity.x;
   const ay = e.accelerationIncludingGravity.y;
   const az = e.accelerationIncludingGravity.z;
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
-  if (mag > 18) stepStrength = 1;
+
+  // 🧪 센서값 그래프 로깅
+  console.log(`mag:${mag.toFixed(2)} threshold:${dynamicThreshold.toFixed(2)}`);
+
+  // 버퍼 채우기 (동적 threshold용)
+  sampleBuffer.push(mag);
+  if (sampleBuffer.length > bufferSize) sampleBuffer.shift();
+
+  // 표준편차 기반 threshold 자동 보정
+  if (sampleBuffer.length === bufferSize) {
+    const mean = sampleBuffer.reduce((a, b) => a + b, 0) / sampleBuffer.length;
+    const variance = sampleBuffer.reduce((a, b) => a + (b - mean) ** 2, 0) / sampleBuffer.length;
+    const stdDev = Math.sqrt(variance);
+
+    // 중력 9.8 기준, 걷기 11~14 기준 → 평균 + 표준편차 * 계수
+    dynamicThreshold = mean + stdDev * 1.2;
+  }
+
+  // 걸음 감지 조건
+  if (mag > dynamicThreshold) {
+    if (now - lastStepTime >= 250) {  // 최소 0.25초 간격
+      stepStrength = 1;
+      lastStepTime = now;
+    }
+  }
 }
+
 
 function handleGPS(pos) {
   if (pos.coords.accuracy <= 40) {
@@ -156,16 +194,18 @@ function tick() {
     velocity *= DECAY;
     stepStrength *= 0.5;
 
+    // 🚫 velocity 폭주 방지
+    if (velocity > 0.0000018) velocity = 0.0000018;
+
     const rad = filteredHeading * Math.PI / 180;
 
     let nextLat = currentUser.lat + Math.cos(rad) * velocity;
     let nextLng = currentUser.lng + Math.sin(rad) * velocity;
-    // nextLat = Math.max(GALLERY_BOUNDS.SW.lat, Math.min(nextLat, GALLERY_BOUNDS.NE.lat));
-    // nextLng = Math.max(GALLERY_BOUNDS.SW.lng, Math.min(nextLng, GALLERY_BOUNDS.NE.lng));
 
     currentUser.lat = nextLat;
     currentUser.lng = nextLng;
   }
+
   updateMyMarkers();
   requestAnimationFrame(tick);
 }
@@ -274,6 +314,24 @@ document.getElementById("startBtn").addEventListener("click", requestSensorPermi
 // =============================
 // 🧪 Dead-Reckoning 테스트 모드
 // =============================
+// HTML body 끝에 div 만들기
+const debugBox = document.createElement("div");
+debugBox.style.cssText = `
+  position:fixed; bottom:0; left:0; right:0;
+  max-height:200px; overflow:auto;
+  background:rgba(0,0,0,0.7); color:#0f0;
+  font-size:12px; padding:5px; z-index:999999;
+`;
+document.body.appendChild(debugBox);
+
+// console.log 오버라이드
+const originalLog = console.log;
+console.log = function (...args) {
+  originalLog.apply(console, args);
+  debugBox.innerHTML += args.join(" ") + "<br>";
+  debugBox.scrollTop = debugBox.scrollHeight;
+};
+
 document.addEventListener("keydown", (e) => {
   const moveStep = 0.0000008; // 이동량 (필요하면 조정)
   const rotStep = 5; // 회전량 (deg)
