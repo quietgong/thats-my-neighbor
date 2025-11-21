@@ -4,8 +4,6 @@
 
 let map;
 const userMarkers = new Map();
-
-// 내 위치
 let currentUser = {id: "", lat: 0, lng: 0};
 
 // DR 상태
@@ -19,17 +17,14 @@ let speedMultiplier = 1.0;
 let headingOffset = 0;
 
 // DR 파라미터
-const BASE_SPEED = 0.0000028;
-const DECAY = 0.92;
+const BASE_SPEED = 0.0000006; // 기존보다 4~5배 줄임
+const DECAY = 0.85;
 const FILTER = 0.15;
 
 // GPS/DR 모드
 let MODE = "DEAD_RECKONING";
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/******************************************************
- * 1) 지도 초기화
- ******************************************************/
 function mapImageOverlay(type) {
   let image, bounds;
 
@@ -89,35 +84,25 @@ async function initMap() {
   userMarkers.set("me", {marker: myMarker, arrow: myArrow});
 }
 
-/******************************************************
- * 2) 센서 시작
- ******************************************************/
 async function requestSensorPermissions() {
   if (typeof DeviceOrientationEvent.requestPermission === "function") {
     const r1 = await DeviceMotionEvent.requestPermission();
     const r2 = await DeviceOrientationEvent.requestPermission();
-    if (r1 !== "granted" || r2 !== "granted"){
+    if (r1 !== "granted" || r2 !== "granted") {
       alert("센서 권한이 필요합니다.");
       return;
     }
   }
-
   window.addEventListener("deviceorientation", handleHeading);
   window.addEventListener("devicemotion", handleStep);
-
   navigator.geolocation.watchPosition(handleGPS, () => {
   }, {enableHighAccuracy: true});
-
   // 위치 공유 루프
   setInterval(uploadMyCurrentLocation, 1000);
   setInterval(updateUsersLocation, 1000);
-
   requestAnimationFrame(tick);
 }
 
-/******************************************************
- * 3) Heading
- ******************************************************/
 function handleHeading(e) {
   if (typeof e.alpha !== "number") return;
   let h;
@@ -132,26 +117,15 @@ function handleHeading(e) {
   filteredHeading = filteredHeading * (1 - FILTER) + h * FILTER;
 }
 
-/******************************************************
- * 4) Step
- ******************************************************/
 function handleStep(e) {
   if (!e.accelerationIncludingGravity) return;
-
   const ax = e.accelerationIncludingGravity.x;
   const ay = e.accelerationIncludingGravity.y;
   const az = e.accelerationIncludingGravity.z;
-
-  const mag = Math.sqrt(ax*ax + ay*ay + az*az);
-
-  if (mag > 13) {
-    stepStrength = 1;
-  }
+  const mag = Math.sqrt(ax * ax + ay * ay + az * az);
+  if (mag > 15) stepStrength = 1;
 }
 
-/******************************************************
- * 5) GPS
- ******************************************************/
 function handleGPS(pos) {
   const cLat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
   const cLng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
@@ -165,9 +139,6 @@ function handleGPS(pos) {
   }
 }
 
-/******************************************************
- * 6) Dead-Reckoning 이동
- ******************************************************/
 function tick() {
   if (MODE === "DEAD_RECKONING") {
     const speed = BASE_SPEED * speedMultiplier * SCALE_FACTOR;
@@ -177,25 +148,17 @@ function tick() {
     stepStrength *= 0.5;
 
     const rad = filteredHeading * Math.PI / 180;
-
     let nextLat = currentUser.lat + Math.cos(rad) * velocity;
     let nextLng = currentUser.lng + Math.sin(rad) * velocity;
-
     nextLat = Math.max(GALLERY_BOUNDS.SW.lat, Math.min(nextLat, GALLERY_BOUNDS.NE.lat));
     nextLng = Math.max(GALLERY_BOUNDS.SW.lng, Math.min(nextLng, GALLERY_BOUNDS.NE.lng));
-
     currentUser.lat = nextLat;
     currentUser.lng = nextLng;
   }
-
   updateMyMarkers();
   requestAnimationFrame(tick);
 }
 
-
-/******************************************************
- * 7) 내 마커 갱신
- ******************************************************/
 function updateMyMarkers() {
   const me = userMarkers.get("me");
   me.marker.setPosition({lat: currentUser.lat, lng: currentUser.lng});
@@ -209,10 +172,6 @@ function updateMyMarkers() {
   });
 }
 
-
-/******************************************************
- * 8) 내 위치 업로드
- ******************************************************/
 async function uploadMyCurrentLocation() {
   try {
     await axios.post(`${API_BASE_URL}/locations`, {
@@ -226,10 +185,6 @@ async function uploadMyCurrentLocation() {
   }
 }
 
-
-/******************************************************
- * 9) 타인 위치 조회 및 반영
- ******************************************************/
 async function updateUsersLocation() {
   try {
     const res = await axios.get(`${API_BASE_URL}/locations/${currentUser.id}`);
@@ -245,10 +200,6 @@ async function updateUsersLocation() {
   }
 }
 
-
-/******************************************************
- * 10) 타인 마커 갱신
- ******************************************************/
 function updateUserMarker(user) {
   const key = String(user.id);
   if (key === String(currentUser.id)) return;
@@ -289,10 +240,6 @@ function updateUserMarker(user) {
   entry.arrow.setPosition({lat: user.lat, lng: user.lng});
 }
 
-
-/******************************************************
- * 11) 타인 마커 정리
- ******************************************************/
 function cleanupOldUsers(activeIds) {
   for (const key of userMarkers.keys()) {
     if (key === "me") continue;
@@ -305,18 +252,11 @@ function cleanupOldUsers(activeIds) {
   }
 }
 
-/******************************************************
- * 0) User ID
- ******************************************************/
 function getUserId() {
   const data = JSON.parse(localStorage.getItem("userId"));
-  if (data && data.value) {
-    return data.value;
-  }
-
+  if (data && data.value) return data.value;
   const newId = "user-" + Math.random().toString(36).substr(2, 9);
   const expire = Date.now() + 24 * 3600 * 1000;
-
   localStorage.setItem("userId", JSON.stringify({value: newId, expire}));
   return newId;
 }
