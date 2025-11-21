@@ -126,7 +126,7 @@ function handleStep(e) {
     stepStrength = 1;
   }
   // 🔍 디버깅용 (원하면 표시)
-  console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
+  console.log(`mag: ${mag.toFixed(2)} threshold: 12`);
 }
 
 function tick() {
