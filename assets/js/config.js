@@ -188,8 +188,8 @@ let GALLERY_BOUNDS;
 const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
 const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
-const mode = prompt("A:(미술관), B:(청주), C:(플링커)");
-if (mode === "A") {
+const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
+if (mode === "1") {
   MUSEUM_BOUNDS = {
     SW: {lat: 35.1088968, lng: 128.9421497},
     NE: {lat: 35.1102139, lng: 128.9436165},
@@ -199,7 +199,7 @@ if (mode === "A") {
     NE: {lat: 35.1095148, lng: 128.9428891}
   };
 }
-if (mode === "B") {
+if (mode === "2") {
   MUSEUM_BOUNDS = {
     SW: {lat: 36.6347369, lng: 127.4392633},
     NE: {lat: 36.6360540, lng: 127.4407301}
@@ -209,7 +209,7 @@ if (mode === "B") {
     NE: {lat: 36.6353549, lng: 127.4400027}
   };
 }
-if (mode === "C") {
+if (mode === "3") {
   MUSEUM_BOUNDS = {
     SW: {lat: 36.6400589, lng: 127.4395283},
     NE: {lat: 36.6413760, lng: 127.4409951}
