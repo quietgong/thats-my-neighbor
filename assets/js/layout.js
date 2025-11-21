@@ -8,7 +8,6 @@ let isInfoModalShow = false;
 
 const INSTRUCTION_SEEN_KEY = 'visited'; // localStorage 키
 
-
 function showGuideModal() {
     // if (!localStorage.getItem(INSTRUCTION_SEEN_KEY)) {
     //     instructionModal.classList.add('show');
@@ -49,16 +48,16 @@ const guideTextContent = {
     kr: [
         "안녕하세요. <댓츠 마이 네이버>에 오신 것을 환영합니다.",
         "지도를 따라 전시장을 자유롭게 거닐며 이웃들을 만나보세요.",
-        "● 빨간 점: 내 위치",
-        "● 파란 점: 함께 관람 중인 다른 이웃들",
+        "🔵 파란 점: 내 위치",
+        "🔴 빨간 점: 함께 관람 중인 다른 이웃들",
         "위치정보 권한 허용을 클릭하시면 지도가 활성화됩니다.",
         "우측 상단의 ⓘ버튼을 눌러 작품 정보를 확인하세요."
     ],
     en: [
         "Welcome to That's My Neighbour.",
         "Feel free to wander through the exhibition following the map and meet our neighbours.",
-        "● Red dot: Your location",
-        "● Blue dots: Other neighbours viewing the exhibition",
+        "🔵 Blue dot: Your location",
+        "🔴 Red dots: Other neighbours viewing the exhibition",
         "The map will be activated once you allow location permissions.",
         "Press the ⓘ button in the top right corner to view artwork information."
     ]

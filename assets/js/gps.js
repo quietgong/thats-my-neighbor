@@ -191,16 +191,39 @@ async function handleGPS(position) {
     }
 }
 
+function createArtworkMarker(item) {
+    const markerSize = 120;
+    const originalWidth = 1920;
+    const originalHeight = 1080;
+    const aspectRatio = originalHeight / originalWidth;
+
+    const scaledWidth = markerSize;
+    const scaledHeight = markerSize * aspectRatio;
+
+    const marker = new google.maps.Marker({
+        position: item.position,
+        map,
+        title: item.name,
+        icon: {
+            url: `${SITE_URL}/assets/marker/AR_Marker_${item.name}.png`,
+            scaledSize: new google.maps.Size(scaledWidth, scaledHeight),
+            anchor: new google.maps.Point(scaledWidth / 2, scaledHeight / 2)
+        }
+    });
+
+    // 🔥 클릭 시 AR 실행
+    marker.addListener("click", () => {
+        activateAr(item.objId);
+    });
+
+    return marker;
+}
+
+
 function drawArtworkMarkers() {
     // 설치물 마커 표시
-    ART_WORKS.forEach((item) => {
-        new google.maps.Marker({
-            position: item.position,
-            map,
-            draggable: true,
-            title: item.name,
-            icon: {url: item.imageUrl, size: new google.maps.Size(item.size.width, item.size.height)}
-        });
+    ART_WORKS.forEach(item => {
+        createArtworkMarker(item);
     });
 }
 
