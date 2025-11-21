@@ -140,7 +140,7 @@ function handleStep(e) {
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
   // ✔ 정지(9~10), 움직임(11~) 실측 기반 threshold
-  const threshold = 10.5;
+  const threshold = 11;
 
   // 🔍 디버깅용 (원하면 표시)
   console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
