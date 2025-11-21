@@ -6,7 +6,7 @@ let map;
 const userMarkers = new Map();
 
 // 내 위치
-let currentUser = { id: "", lat: 0, lng: 0 };
+let currentUser = { userId: "", lat: 0, lng: 0 };
 
 // DR 상태
 let filteredHeading = 0;
@@ -70,7 +70,7 @@ function mapImageOverlay(type) {
 
 
 async function initMap() {
-    currentUser.id = getUserId();
+    currentUser.userId = getUserId();
 
     map = new google.maps.Map(document.getElementById("map"), MAP_OPTIONS);
 
@@ -192,8 +192,16 @@ function handleGPS(pos) {
 /******************************************************
  * 6) Dead-Reckoning 이동
  ******************************************************/
+let drInitialized = false;
 function tick() {
     if (MODE === "DEAD_RECKONING") {
+        // ⭐ DEAD_RECORDING 최초 1회에만 중앙 위치로 세팅
+        if (!drInitialized) {
+            currentUser.lat = (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2;
+            currentUser.lng = (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2;
+            drInitialized = true;
+        }
+
         const speed = BASE_SPEED * speedMultiplier * SCALE_FACTOR;
 
         if (stepStrength > 0) velocity += speed;
@@ -242,7 +250,7 @@ function updateMyMarkers() {
 async function uploadMyCurrentLocation() {
     try {
         await axios.post(`${API_BASE_URL}/locations`, {
-            userId: currentUser.id,
+            userId: currentUser.userId,
             latitude: currentUser.lat,
             longitude: currentUser.lng,
             heading: filteredHeading
@@ -258,7 +266,7 @@ async function uploadMyCurrentLocation() {
  ******************************************************/
 async function updateUsersLocation() {
     try {
-        const res = await axios.get(`${API_BASE_URL}/locations/${currentUser.id}`);
+        const res = await axios.get(`${API_BASE_URL}/locations/${currentUser.userId}`);
         const users = res.data.data || [];
 
         const active = new Set(users.map(u => String(u.id)));
@@ -277,7 +285,7 @@ async function updateUsersLocation() {
  ******************************************************/
 function updateUserMarker(user) {
     const key = String(user.id);
-    if (key === String(currentUser.id)) return;
+    if (key === String(currentUser.userId)) return;
 
     let entry = userMarkers.get(key);
 

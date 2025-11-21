@@ -182,29 +182,29 @@ function computeBounds() {
     GALLERY_BOUNDS.NE = applyScale(GALLERY_BOUNDS, SCALE_FACTOR).NE;
 }
 
-// // 프로덕션
-// const MUSEUM_BOUNDS = {
-//     SW: {lat: 35.1088968, lng: 128.9421497},
-//     NE: {lat: 35.1102139, lng: 128.9436165},
-// };
-//
-// // 프로덕션
-// const GALLERY_BOUNDS = {
-//     SW: {lat: 35.1093710, lng: 128.9427137},
-//     NE: {lat: 35.1095148, lng: 128.9428891}
-// };
-
-// 테스트용
-const MUSEUM_BOUNDS = {
-    SW: {lat: 36.6347369, lng: 127.4392633},
-    NE: {lat: 36.6360540, lng: 127.4407301}
-};
-
-// 테스트용
-const GALLERY_BOUNDS = {
-    SW: {lat: 36.6352111, lng: 127.4398273},
-    NE: {lat: 36.6353549, lng: 127.4400027}
-};
+const mode = prompt("A:(test), B:(미술관)");
+let MUSEUM_BOUNDS;
+let GALLERY_BOUNDS;
+if (mode === "A") {
+    MUSEUM_BOUNDS = {
+        SW: {lat: 35.1088968, lng: 128.9421497},
+        NE: {lat: 35.1102139, lng: 128.9436165},
+    };
+    GALLERY_BOUNDS = {
+        SW: {lat: 35.1093710, lng: 128.9427137},
+        NE: {lat: 35.1095148, lng: 128.9428891}
+    };
+}
+if (mode === "B") {
+    MUSEUM_BOUNDS = {
+        SW: {lat: 36.6347369, lng: 127.4392633},
+        NE: {lat: 36.6360540, lng: 127.4407301}
+    };
+    GALLERY_BOUNDS = {
+        SW: {lat: 36.6352111, lng: 127.4398273},
+        NE: {lat: 36.6353549, lng: 127.4400027}
+    };
+}
 
 computeBounds();
 
@@ -220,6 +220,7 @@ const MAP_OPTIONS = {
     fullscreenControl: false,
     zoomControl: true,
     streetViewControl: false,
+    gestureHandling: "greddy",
     // restriction: {
     //     latLngBounds: MAP_BOUNDS,
     //     strictBounds: false,
