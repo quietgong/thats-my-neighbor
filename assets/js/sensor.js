@@ -12,21 +12,19 @@ let velocity = 0;
 let stepStrength = 0;
 
 // 튜닝 값
-let speedMultiplier = 1.0;
 let headingOffset = 0;
 
 // DR 파라미터
 const BASE_SPEED = 0.00000012; // 약 1.2cm
-const DECAY = 0.92;            // 빠른 감쇠로 가속 억제
+const STEP_DISTANCE = 0.0000063; // 약 0.7m에 해당하는 lat/lng 단위
+const DECAY = 0.75; // 빠른 감쇠로 가속 억제
 const SPEED_FACTOR = 0.0000028;
 const FILTER = 0.15;
 
-// 센서 안정화
-let isMoving = false;
 let lastStepTime = 0;
+
+// 센서 안정화
 let threshold = 13;      // 초기 threshold
-let sampleBuffer = [];            // 센서값 샘플 저장
-let bufferSize = 20;              // 표준편차 계산용 샘플 수
 let noiseBlockUntil = Date.now() + 2000;  // 초기에 2초간 step 감지 차단
 
 
@@ -138,24 +136,27 @@ function handleStep(e) {
 
   const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-  if (mag > threshold) stepStrength = 1;
+  if (mag > threshold) {
+    const now = Date.now();
+    if (now - lastStepTime > 250) {  // 걸음 최소 간격
+      velocity = STEP_DISTANCE;      // 정확한 이동량 0.7m
+      lastStepTime = now;
+    }
+  }
   // 🔍 디버깅용 (원하면 표시)
   console.log(`mag: ${mag.toFixed(2)} threshold: ${threshold}`);
 }
 
 function tick() {
   if (MODE === "DEAD_RECKONING") {
-    if (stepStrength > 0) velocity += SPEED_FACTOR * stepStrength;
     velocity *= DECAY;
-    stepStrength *= 0.5;
+
+    if (velocity < 0.0000001) velocity = 0; // 완전 정지
 
     const rad = filteredHeading * Math.PI / 180;
 
-    let nextLat = currentUser.lat + Math.cos(rad) * velocity;
-    let nextLng = currentUser.lng + Math.sin(rad) * velocity;
-
-    currentUser.lat = nextLat;
-    currentUser.lng = nextLng;
+    currentUser.lat += Math.cos(rad) * velocity;
+    currentUser.lng += Math.sin(rad) * velocity;
   }
 
   updateMyMarkers();
