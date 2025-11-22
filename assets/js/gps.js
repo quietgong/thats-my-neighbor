@@ -196,7 +196,6 @@ function createArtworkMarker(item) {
     const originalWidth = 1920;
     const originalHeight = 1080;
     const aspectRatio = originalHeight / originalWidth;
-
     const scaledWidth = markerSize;
     const scaledHeight = markerSize * aspectRatio;
 
@@ -213,9 +212,9 @@ function createArtworkMarker(item) {
 
     // 🔥 클릭 시 AR 실행
     marker.addListener("click", () => {
+        alert(`model id = ${item.objId}`);
         viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-        viewer.scale = `${scaleRange.value} ${scaleRange.value} ${scaleRange.value}`;
-        scaleControl.style.display = 'block';
+        viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
         viewer.activateAR();
     });
 
@@ -242,19 +241,3 @@ function getUserIdFromLocalStorage() {
 document.getElementById("startBtn").addEventListener("click", trackingGps);
 
 const viewer = document.getElementById('mainViewer');
-
-const scaleRange = document.getElementById('scaleRange');
-const scaleValue = document.getElementById('scaleValue');
-const scaleControl = document.getElementById('scaleControl');
-scaleRange.addEventListener('input', () => {
-    const scale = scaleRange.value;
-    scaleValue.textContent = scale;
-    viewer.scale = `${scale} ${scale} ${scale}`;
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    ['preload1', 'preload2', 'preload3'].forEach((id, i) => {
-        setTimeout(() => document.getElementById(id).preload = true, i * 800);
-    });
-});

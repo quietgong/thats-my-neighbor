@@ -130,7 +130,7 @@ const MAP_STYLE = [
     }
 ];
 const TARGET_ZOOM_LEVEL = 22; // 실제로 적용할 줌 레벨
-const USE_MOCK = true; // GPS 모킹 테스트 모드 (true, false)
+const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 40; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 
@@ -152,8 +152,7 @@ let GALLERY_BOUNDS;
 const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
 const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
-const mode = "2";
-// const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
+const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
 if (mode === "1") {
     MUSEUM_BOUNDS = {
         SW: {lat: 35.1088968, lng: 128.9421497},
@@ -217,26 +216,32 @@ const ART_WORKS = [
     {
         name: "1-1",
         objId: "obj1",
+        scale: 0.1
     },
     {
         name: "1-2",
         objId: "obj1",
+        scale: 0.1
     },
     {
         name: "2-1",
         objId: "obj2",
+        scale: 1
     },
     {
         name: "2-2",
         objId: "obj2",
+        scale: 1
     },
     {
         name: "3-1",
         objId: "obj3",
+        scale: 1
     },
     {
         name: "3-2",
         objId: "obj3",
+        scale: 1
     },
 ].map(item => ({
     ...item,
