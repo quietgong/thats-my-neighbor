@@ -133,6 +133,7 @@ const TARGET_ZOOM_LEVEL = 22; // 실제로 적용할 줌 레벨
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 40; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
+const AR_MARKER_SIZE = 160;
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
@@ -206,7 +207,7 @@ const MAP_OPTIONS = {
     // }
 };
 
-function randomOffset(range = 0.0001) {
+function randomOffset(range) {
     return (Math.random() - 0.5) * 2 * range;
     // 예: ±0.0001 → 약 ±10m 범위
 }
@@ -216,12 +217,12 @@ const ART_WORKS = [
     {
         name: "1-1",
         objId: "obj1_output",
-        scale: 0.1
+        scale: 1
     },
     {
         name: "1-2",
         objId: "obj1_output",
-        scale: 0.1
+        scale: 1
     },
     {
         name: "2-1",

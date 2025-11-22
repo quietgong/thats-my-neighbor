@@ -150,7 +150,7 @@ async function initMap() {
     });
 
     // 마커 생성
-    drawArtworkMarkers()
+    createArtworkMarker();
 
     console.log(`initMap 완료`)
 }
@@ -191,40 +191,33 @@ async function handleGPS(position) {
     }
 }
 
-function createArtworkMarker(item) {
-    const markerSize = 120;
+function createArtworkMarker() {
     const originalWidth = 1920;
     const originalHeight = 1080;
     const aspectRatio = originalHeight / originalWidth;
-    const scaledWidth = markerSize;
-    const scaledHeight = markerSize * aspectRatio;
-
-    const marker = new google.maps.Marker({
-        position: item.position,
-        map,
-        title: item.name,
-        icon: {
-            url: `${SITE_URL}/assets/marker/AR_Marker_${item.name}.png`,
-            scaledSize: new google.maps.Size(scaledWidth, scaledHeight),
-            anchor: new google.maps.Point(scaledWidth / 2, scaledHeight / 2)
-        }
-    });
-
-    // 🔥 클릭 시 AR 실행
-    marker.addListener("click", () => {
-        alert(`model id = ${item.objId}`);
-        viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-        viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
-        viewer.activateAR();
-    });
-
-    return marker;
-}
-
-function drawArtworkMarkers() {
+    const scaledWidth = AR_MARKER_SIZE;
+    const scaledHeight = AR_MARKER_SIZE * aspectRatio;
+    const viewer = document.getElementById("mainViewer");
     // 설치물 마커 표시
     ART_WORKS.forEach(item => {
-        createArtworkMarker(item);
+        const marker = new google.maps.Marker({
+            position: item.position,
+            map,
+            title: item.name,
+            icon: {
+                url: `${SITE_URL}/assets/marker/AR_Marker_${item.name}.png`,
+                scaledSize: new google.maps.Size(scaledWidth, scaledHeight),
+                anchor: new google.maps.Point(scaledWidth / 2, scaledHeight / 2)
+            }
+        });
+
+        // 🔥 클릭 시 AR 실행
+        marker.addListener("click", () => {
+            alert(`model id = ${item.objId}`);
+            viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
+            viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
+            viewer.activateAR();
+        });
     });
 }
 
@@ -239,29 +232,3 @@ function getUserIdFromLocalStorage() {
 }
 
 document.getElementById("startBtn").addEventListener("click", trackingGps);
-
-const viewer = document.getElementById('mainViewer');
-
-let loadedCount = 0;
-const preloadIds = ['preload1', 'preload2', 'preload3'];
-document.addEventListener('DOMContentLoaded', () => {
-    preloadIds.forEach((id, i) => {
-        document.getElementById(id).preload = true;
-    });
-    preloadIds.forEach(id => {
-      const viewer = document.getElementById(id);
-      viewer.addEventListener('load', () => {
-        loadedCount++;
-        console.log(`✅ ${viewer.src} preload 완료 (${loadedCount}/${preloadIds.length})`);
-        if (loadedCount === preloadIds.length) {
-          console.log('🎉 모든 GLB preload 완료!');
-            alert('🎉 모든 GLB preload 완료!');
-        }
-      });
-
-      // 혹시 로드 실패할 경우 대비
-      viewer.addEventListener('error', (e) => {
-        console.warn(`⚠️ ${viewer.src} preload 실패`, e);
-      });
-    });
-});
