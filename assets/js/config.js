@@ -153,7 +153,8 @@ let GALLERY_BOUNDS;
 const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
 const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
-const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
+// const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
+const mode = 1;
 if (mode === "1") {
     MUSEUM_BOUNDS = {
         SW: {lat: 35.1088968, lng: 128.9421497},
