@@ -29,6 +29,7 @@ let MOCK_USERS = [
 let isGpsInitialized = false;
 const userMarkers = new Map();
 const currentUser = {id: "", lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]};
+const kalman = new KalmanFilterGps(0.00001, 0.0001);
 
 // APIs
 async function uploadMyCurrentLocation() {
@@ -179,8 +180,10 @@ function trackingGps() {
 async function handleGPS(position) {
     if (isGpsInitialized && position.coords.accuracy <= VALID_GPS_ACCURACY) {
         // 현재 나의 위치 정보 얻기
-        currentUser.lat = position.coords.latitude;
-        currentUser.lng = position.coords.longitude;
+        const { latitude, longitude } = position.coords;
+        const filtered = kalman.filter(latitude, longitude);
+        currentUser.lat = filtered.lat;
+        currentUser.lng = filtered.lng;
         console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
 
         // 나의 위치 마커 업데이트
