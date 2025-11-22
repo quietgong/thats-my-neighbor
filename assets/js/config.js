@@ -217,12 +217,12 @@ const ART_WORKS = [
     {
         name: "1-1",
         objId: "obj1_output",
-        scale: 1
+        scale: 0.1
     },
     {
         name: "1-2",
         objId: "obj1_output",
-        scale: 1
+        scale: 0.1
     },
     {
         name: "2-1",
