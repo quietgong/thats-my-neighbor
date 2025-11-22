@@ -133,7 +133,7 @@ const TARGET_ZOOM_LEVEL = 22; // 실제로 적용할 줌 레벨
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
-const AR_MARKER_SIZE = 160;
+const AR_MARKER_SIZE = 140;
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
@@ -161,9 +161,10 @@ if (mode === "1") {
         NE: {lat: 35.1102139, lng: 128.9436165},
     };
     GALLERY_BOUNDS = {
-        SW: {lat: 35.1093710, lng: 128.9427137},
-        NE: {lat: 35.1095148, lng: 128.9428891}
+        SW: {lat: 35.10928655, lng: 128.94263734},
+        NE: {lat: 35.10946673, lng: 128.94286114}
     };
+
 }
 if (mode === "2") {
     MUSEUM_BOUNDS = {
@@ -200,6 +201,7 @@ const MAP_OPTIONS = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: true,
+    minZoom: 19,
     streetViewControl: false,
     gestureHandling: "greedy",
     // restriction: {
@@ -208,10 +210,23 @@ const MAP_OPTIONS = {
     // }
 };
 
-function randomOffset(range) {
-    return (Math.random() - 0.5) * 2 * range;
-    // 예: ±0.0001 → 약 ±10m 범위
+function getDistanceMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371e3;
+    const toRad = x => (x * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) ** 2;
+
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
+
+const GALLERY_COUNT = 1; // 전시장 내부에 위치할 마커는 최소 2개
 
 // 설치물 정보
 const ART_WORKS = [
@@ -245,10 +260,54 @@ const ART_WORKS = [
         objId: "obj3_output",
         scale: 1
     },
-].map(item => ({
-    ...item,
-    position: {
-        lat: CENTER_GALLERY_POSITION.lat + randomOffset(0.00005), // 약 ±5m
-        lng: CENTER_GALLERY_POSITION.lng + randomOffset(0.00005)
+];
+
+function getRandomPositionInBounds(bounds) {
+    const lat = bounds.SW.lat + Math.random() * (bounds.NE.lat - bounds.SW.lat);
+    const lng = bounds.SW.lng + Math.random() * (bounds.NE.lng - bounds.SW.lng);
+    return {lat, lng};
+}
+
+function generateNonOverlappingPosition(bounds, existingPositions, minSpacing = 10) {
+    // minSpacing: 최소 간격(m) → 전시장 규모에 따라 조절 가능
+    // 반복해서 배치 시도
+    for (let i = 0; i < 50; i++) {
+        const pos = getRandomPositionInBounds(bounds);
+        let isTooClose = false;
+
+        for (const prev of existingPositions) {
+            const dist = getDistanceMeters(pos.lat, pos.lng, prev.lat, prev.lng);
+            if (dist < minSpacing) {
+                isTooClose = true;
+                break;
+            }
+        }
+
+        if (!isTooClose) return pos;
     }
-}));
+
+    // 50번 실패하면 그냥 마지막 값 사용(매우 드문 케이스)
+    return getRandomPositionInBounds(bounds);
+}
+
+
+const assignedPositions = [];
+
+
+const ART_WORKS_WITH_POSITIONS = ART_WORKS.map((item, index) => {
+    const isGalleryItem = index < GALLERY_COUNT;
+    const bounds = isGalleryItem ? GALLERY_BOUNDS : MUSEUM_BOUNDS;
+
+    const position = generateNonOverlappingPosition(
+        bounds,
+        assignedPositions,
+        3  // 최소 3m 이상 간격
+    );
+
+    assignedPositions.push(position);
+
+    return {
+        ...item,
+        position
+    };
+});

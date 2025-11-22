@@ -150,6 +150,10 @@ async function initMap() {
         map.setZoom(TARGET_ZOOM_LEVEL)
     });
 
+    google.maps.event.addListener(map, "zoom_changed", () => {
+        console.log("현재 Zoom Level:", map.getZoom());
+    });
+
     // 마커 생성
     createArtworkMarker();
 
@@ -180,7 +184,7 @@ function trackingGps() {
 async function handleGPS(position) {
     if (isGpsInitialized && position.coords.accuracy <= VALID_GPS_ACCURACY) {
         // 현재 나의 위치 정보 얻기
-        const { latitude, longitude } = position.coords;
+        const {latitude, longitude} = position.coords;
         const filtered = kalman.filter(latitude, longitude);
         currentUser.lat = filtered.lat;
         currentUser.lng = filtered.lng;
@@ -202,7 +206,7 @@ function createArtworkMarker() {
     const scaledHeight = AR_MARKER_SIZE * aspectRatio;
     const viewer = document.getElementById("mainViewer");
     // 설치물 마커 표시
-    ART_WORKS.forEach(item => {
+    ART_WORKS_WITH_POSITIONS.forEach(item => {
         const marker = new google.maps.Marker({
             position: item.position,
             map,
@@ -216,7 +220,6 @@ function createArtworkMarker() {
 
         // 🔥 클릭 시 AR 실행
         marker.addListener("click", () => {
-            alert(`model id = ${item.objId}`);
             viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
             viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
             viewer.activateAR();
