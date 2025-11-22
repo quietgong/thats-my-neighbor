@@ -213,12 +213,14 @@ function createArtworkMarker(item) {
 
     // 🔥 클릭 시 AR 실행
     marker.addListener("click", () => {
-        activateAr(item.objId);
+        viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
+        viewer.scale = `${scaleRange.value} ${scaleRange.value} ${scaleRange.value}`;
+        scaleControl.style.display = 'block';
+        viewer.activateAR();
     });
 
     return marker;
 }
-
 
 function drawArtworkMarkers() {
     // 설치물 마커 표시
@@ -237,10 +239,22 @@ function getUserIdFromLocalStorage() {
     }
 }
 
-function activateAr(objId) {
-    const viewer = document.getElementById("hiddenViewer");
-    viewer.src = `${SITE_URL}/assets/glb/${objId}.glb`;
-    viewer.activateAR();
-}
-
 document.getElementById("startBtn").addEventListener("click", trackingGps);
+
+const viewer = document.getElementById('mainViewer');
+
+const scaleRange = document.getElementById('scaleRange');
+const scaleValue = document.getElementById('scaleValue');
+const scaleControl = document.getElementById('scaleControl');
+scaleRange.addEventListener('input', () => {
+    const scale = scaleRange.value;
+    scaleValue.textContent = scale;
+    viewer.scale = `${scale} ${scale} ${scale}`;
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    ['preload1', 'preload2', 'preload3'].forEach((id, i) => {
+        setTimeout(() => document.getElementById(id).preload = true, i * 800);
+    });
+});

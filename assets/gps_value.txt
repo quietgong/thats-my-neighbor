@@ -12,7 +12,7 @@ const MUSEUM_BOUNDS =
     }
 
 🖼 전시장(Gallery) 실제 좌표
- SW: {
+    SW: {
         lat: 35.1093710,
         lng: 128.9427137
     },

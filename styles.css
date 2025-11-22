@@ -12,6 +12,22 @@ html, body {
     background-color: #f5f5f5;
 }
 
+.scale-control {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    z-index: 1000;
+}
+
+#scaleRange {
+    width: 150px;
+}
+
 /* 메인 컨테이너 */
 .container {
     width: 100%;
@@ -25,16 +41,16 @@ html, body {
    ============================================ */
 
 .map-section {
-    position: relative;   /* 오버레이 기준점 */
-    flex: 1;              /* 컨테이너 안에서 남은 공간을 모두 사용 */
+    position: relative; /* 오버레이 기준점 */
+    flex: 1; /* 컨테이너 안에서 남은 공간을 모두 사용 */
     width: 100%;
-    height: 100%;         /* 또는 height: 100vh; 로 고정 높이도 가능 */
+    height: 100%; /* 또는 height: 100vh; 로 고정 높이도 가능 */
 }
 
 #map {
     position: relative;
     width: 100%;
-    height: 100%;        /* 부모(map-section)가 이제 높이를 가지니 정상 동작 */
+    height: 100%; /* 부모(map-section)가 이제 높이를 가지니 정상 동작 */
     border: none;
     overflow: hidden;
     background-color: #e0e0e0;
@@ -48,7 +64,7 @@ html, body {
     position: absolute;
     top: 0;
     width: 100%;
-    height: 15vh;              /* ← 확실하게 헤더 영역 길어짐 */
+    height: 15vh; /* ← 확실하게 헤더 영역 길어짐 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,9 +82,9 @@ html, body {
 .info-btn {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);   /* 로고와 같은 세로 높이 */
-    margin-left: 50px;             /* 로고와의 간격 */
-    left: calc(50% + (32vw / 2));  /* 화면 중앙 + 로고 너비의 절반 */
+    transform: translateY(-50%); /* 로고와 같은 세로 높이 */
+    margin-left: 50px; /* 로고와의 간격 */
+    left: calc(50% + (32vw / 2)); /* 화면 중앙 + 로고 너비의 절반 */
     /* 로고 max/min 반응형까지 정확히 대응 */
     background: none;
     border: none;
@@ -79,7 +95,7 @@ html, body {
 
 /* INFO 이미지 크기: 로고 대비 크게 */
 .info-btn img {
-    top:1vh;
+    top: 1vh;
     width: 1vw;
     max-width: 40px;
     min-width: 40px;
@@ -192,18 +208,18 @@ html, body {
 /* 모달 이미지 컨테이너 */
 .info-section .logo-images {
     display: flex;
-    justify-content: center;   /* 가운데 정렬 */
+    justify-content: center; /* 가운데 정렬 */
     align-items: center;
-    gap: 16px;                 /* 이미지 간 간격 */
+    gap: 16px; /* 이미지 간 간격 */
     margin-top: 16px;
-    flex-wrap: wrap;           /* 화면 좁을 때 자동 줄바꿈 */
+    flex-wrap: wrap; /* 화면 좁을 때 자동 줄바꿈 */
 }
 
 /* 모달 이미지 스타일 */
 .info-section .logo-images img {
-    max-width: 200px;          /* 너무 커지지 않도록 제한 */
-    width: 40%;                /* 비율 유지하며 반응형 */
-    height: auto;              /* 비율 자동 유지 */
+    max-width: 200px; /* 너무 커지지 않도록 제한 */
+    width: 40%; /* 비율 유지하며 반응형 */
+    height: auto; /* 비율 자동 유지 */
     object-fit: contain;
     display: block;
 }
@@ -225,6 +241,7 @@ html, body {
     border-radius: 6px;
     cursor: pointer;
 }
+
 .language-buttons button:hover {
     background: #f1f1f1;
 }
@@ -240,7 +257,7 @@ model-viewer {
     opacity: 0;
     pointer-events: none;
     position: absolute;
-  }
+}
 
 /* ============================================
    하단 임시 버튼 3개
@@ -265,7 +282,7 @@ model-viewer {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* ============================================
