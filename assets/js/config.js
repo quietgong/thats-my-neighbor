@@ -215,32 +215,32 @@ function randomOffset(range = 0.0001) {
 const ART_WORKS = [
     {
         name: "1-1",
-        objId: "obj1",
+        objId: "obj1_output",
         scale: 0.1
     },
     {
         name: "1-2",
-        objId: "obj1",
+        objId: "obj1_output",
         scale: 0.1
     },
     {
         name: "2-1",
-        objId: "obj2",
+        objId: "obj2_output",
         scale: 1
     },
     {
         name: "2-2",
-        objId: "obj2",
+        objId: "obj2_output",
         scale: 1
     },
     {
         name: "3-1",
-        objId: "obj3",
+        objId: "obj3_output",
         scale: 1
     },
     {
         name: "3-2",
-        objId: "obj3",
+        objId: "obj3_output",
         scale: 1
     },
 ].map(item => ({
