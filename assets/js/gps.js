@@ -28,9 +28,7 @@ let MOCK_USERS = [
 ];
 const userMarkers = new Map();
 const currentUser = {id: "", lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]};
-const kalman = new KalmanFilterGps(0.00001, 0.0001);
 const artworkMarkers = new Map(); // AR 작품 마커 저장용
-
 
 // APIs
 async function uploadMyCurrentLocation() {
@@ -154,11 +152,9 @@ async function initMap() {
         map.setZoom(TARGET_ZOOM_LEVEL)
     });
 
-    // google.maps.event.addListener(map, "zoom_changed", () => {
-    //     console.log("현재 Zoom Level:", map.getZoom());
-    // });
     google.maps.event.addListener(map, "zoom_changed", () => {
         const zoom = map.getZoom();
+        console.log(`줌 레벨: ${zoom}`);
         const scaleFactor = Math.pow(0.8, TARGET_ZOOM_LEVEL - zoom);
         artworkMarkers.forEach((data, key) => {
             const {marker, aspectRatio} = data;
@@ -214,30 +210,32 @@ function trackingGps() {
 
 async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
+    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, longitude, longitude);
 
-    if (accuracy > VALID_GPS_ACCURACY) {
-        console.warn("GPS accuracy too low → ignored");
+    printGPSDebug({latitude, longitude, accuracy, distance});
+
+    if (distance > VALID_GPS_DISTANCE) {
+        console.warn(`GPS jump detected: ${distance.toFixed(1)}m → ignored`);
         return;
     }
 
-    if (!IS_GPS_INITIALIZED) {
-        IS_GPS_INITIALIZED = true;
-        return;
-    }
-
-    const filtered = kalman.filter(latitude, longitude);
-    const dist = getDistanceMeters(currentUser.lat, currentUser.lng, filtered.lat, filtered.lng);
-    if (dist > VALID_GPS_DISTANCE) {
-        console.warn(`GPS jump detected: ${dist.toFixed(1)}m → ignored`);
-        return;
-    }
-
-    currentUser.lat = filtered.lat;
-    currentUser.lng = filtered.lng;
-    console.log(`보정된 위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
-
+    currentUser.lat = latitude;
+    currentUser.lng = longitude;
+    console.log(`위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
     updateUserMarker(currentUser);
     await uploadMyCurrentLocation();
+}
+
+function printGPSDebug(data) {
+    const box = document.getElementById("gps-debug");
+    if (!box) return;
+    box.innerHTML = `
+        <strong>GPS Debug Info</strong><br>
+        Lat: ${data.latitude}<br>
+        Lng: ${data.longitude}<br>
+        Accuracy: ${data.accuracy} m<br>
+        Distance: ${data.distance} m<br>
+    `;
 }
 
 function createArtworkMarker() {
@@ -267,7 +265,9 @@ function createArtworkMarker() {
             aspectRatio: aspectRatio
         });
 
-        marker.addListener("click", () => activateAr(item));
+        marker.addListener("click", () =>
+            activateAr(item)
+        );
     });
 }
 

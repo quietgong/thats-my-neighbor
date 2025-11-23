@@ -135,7 +135,6 @@ const GALLERY_SCALE = 2;
 
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 let IS_GPS_INITIALIZED = false;
-const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const VALID_GPS_DISTANCE = 10; // 업데이트할만한 이전, 현재 GPS 거리 차이 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 
@@ -161,8 +160,30 @@ const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
 const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 
 // const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
-const mode = "1";
-if (mode === "1") {
+const urlSearchParams = new URLSearchParams(window.location.search);
+const place = urlSearchParams.get("place");
+if (place === "home") {
+    console.log(`설정된 장소는 우리집입니다.`);
+    MUSEUM_BOUNDS = {
+        SW: {lat: 36.6347369, lng: 127.4392633},
+        NE: {lat: 36.6360540, lng: 127.4407301}
+    };
+    GALLERY_BOUNDS = {
+        SW: {lat: 36.6352111, lng: 127.4398273},
+        NE: {lat: 36.6353549, lng: 127.4400027}
+    };
+} else if (place === "plinqer") {
+    console.log(`설정된 장소는 플링커입니다.`);
+    MUSEUM_BOUNDS = {
+        SW: {lat: 36.6400589, lng: 127.4395283},
+        NE: {lat: 36.6413760, lng: 127.4409951}
+    };
+    GALLERY_BOUNDS = {
+        SW: {lat: 36.6405331, lng: 127.4400923},
+        NE: {lat: 36.6406769, lng: 127.4402677}
+    };
+} else {
+    console.log(`설정된 장소는 을숙도입니다.`);
     MUSEUM_BOUNDS = {
         SW: {lat: 35.107652, lng: 128.941041},
         NE: {lat: 35.110951, lng: 128.945074}
@@ -172,26 +193,6 @@ if (mode === "1") {
         NE: {lat: 35.10946673, lng: 128.94286114}
     };
     GALLERY_BOUNDS = scaleBounds(GALLERY_BOUNDS);
-}
-if (mode === "2") {
-    MUSEUM_BOUNDS = {
-        SW: {lat: 36.6347369, lng: 127.4392633},
-        NE: {lat: 36.6360540, lng: 127.4407301}
-    };
-    GALLERY_BOUNDS = {
-        SW: {lat: 36.6352111, lng: 127.4398273},
-        NE: {lat: 36.6353549, lng: 127.4400027}
-    };
-}
-if (mode === "3") {
-    MUSEUM_BOUNDS = {
-        SW: {lat: 36.6400589, lng: 127.4395283},
-        NE: {lat: 36.6413760, lng: 127.4409951}
-    };
-    GALLERY_BOUNDS = {
-        SW: {lat: 36.6405331, lng: 127.4400923},
-        NE: {lat: 36.6406769, lng: 127.4402677}
-    };
 }
 
 // 전시장 가운데 위치
@@ -255,8 +256,8 @@ function scaleBounds(bounds) {
     };
 }
 
-// 설치물 정보
 const ART_WORKS = [
+    // 설치물 정보
     {
         name: "1-1",
         objId: "obj1",
