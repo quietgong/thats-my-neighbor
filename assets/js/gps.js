@@ -219,8 +219,8 @@ async function handleGPS(position) {
         filtered.lng
     );
 
-    // 5) 갑작스런 점프(20m 이상) 무시
-    if (dist > 20) {
+    // 5) 갑작스런 점프(10m 이상) 무시
+    if (dist > VALID_GPS_DISTANCE) {
         console.warn(`GPS jump detected: ${dist.toFixed(1)}m → ignored`);
         return;
     }
@@ -228,7 +228,6 @@ async function handleGPS(position) {
     // 6) 정상 업데이트
     currentUser.lat = filtered.lat;
     currentUser.lng = filtered.lng;
-
     console.log(`보정된 위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
 
     updateUserMarker(currentUser);
