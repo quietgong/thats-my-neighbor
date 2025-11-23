@@ -261,7 +261,7 @@ function createArtworkMarker() {
             position: item.position,
             map,
             title: item.name,
-            draggable:true,
+            draggable: true,
             icon: {
                 url: `${SITE_URL}/assets/marker/AR_Marker_${item.name}.png`,
                 scaledSize: new google.maps.Size(scaledWidth, scaledHeight),
@@ -281,24 +281,72 @@ function createArtworkMarker() {
     });
 }
 
-function activateAr(item) {
-    const viewer = document.getElementById("mainViewer");
-    viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
+async function downloadWithProgress(url, onProgress) {
+    const response = await fetch(url);
 
-    if (isIOS()) {
-        // iOS → usdZ 전용 AR
-        viewer.src = `${SITE_URL}/assets/usdz/${item.objId}.usdz`;
-        viewer.activateAR();
-    } else {
-        // Android/PC/WebXR → glb
-        viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-        // if (IS_AR_INITIALIZED) {
-        //     IS_AR_INITIALIZED = true;
-        //     viewer.activateAR();
-        // }
-        viewer.activateAR();
+    if (!response.body) {
+        // 브라우저가 Stream을 지원하지 않을 경우 100%로 처리
+        onProgress(100);
+        return await response.blob();
     }
+
+    const reader = response.body.getReader();
+    const contentLength = +response.headers.get("Content-Length");
+
+    let received = 0;
+    let chunks = [];
+
+    while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+
+        chunks.push(value);
+        received += value.length;
+
+        const percent = Math.floor((received / contentLength) * 100);
+        onProgress(percent);
+    }
+
+    return new Blob(chunks);
 }
+
+function showArLoading() {
+    document.getElementById("ar-loading").style.display = "flex";
+}
+
+function hideArLoading() {
+    document.getElementById("ar-loading").style.display = "none";
+}
+
+function updateProgress(percent) {
+    document.getElementById("ar-progress-bar").style.width = percent + "%";
+    document.getElementById("ar-progress-percent").innerText = percent + "%";
+}
+
+async function activateAr(item) {
+    const viewer = document.getElementById("mainViewer");
+    showArLoading();
+
+    let srcUrl = isIOS()
+        ? `${SITE_URL}/assets/usdz/${item.objId}.usdz?v=${Date.now()}`
+        : `${SITE_URL}/assets/glb/${item.objId}.glb?v=${Date.now()}`;
+
+    // 1️⃣ 실제 다운로드 진행률 추적
+    const blob = await downloadWithProgress(srcUrl, (percent) => {
+        updateProgress(percent);
+    });
+
+    // 2️⃣ 다운로드 완료 후 viewer에 로드
+    const blobUrl = URL.createObjectURL(blob);
+    viewer.src = blobUrl;
+
+    // 3️⃣ 모델뷰어 내부 로딩 완료 시 AR 실행
+    viewer.addEventListener("load", () => {
+        hideArLoading();
+        viewer.activateAR();
+    }, {once: true});
+}
+
 
 function getUserIdFromLocalStorage() {
     const data = JSON.parse(localStorage.getItem("userId"));
