@@ -284,10 +284,18 @@ function createArtworkMarker() {
 function activateAr(item) {
     const viewer = document.getElementById("mainViewer");
     viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
-    viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-    viewer.activateAR();
-    if (IS_AR_INITIALIZED) {
-        IS_AR_INITIALIZED = true;
+
+    if (isIOS()) {
+        // iOS → usdZ 전용 AR
+        viewer.src = `${SITE_URL}/assets/usdz/${item.objId}.usdz`;
+        viewer.activateAR();
+    } else {
+        // Android/PC/WebXR → glb
+        viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
+        // if (IS_AR_INITIALIZED) {
+        //     IS_AR_INITIALIZED = true;
+        //     viewer.activateAR();
+        // }
         viewer.activateAR();
     }
 }
