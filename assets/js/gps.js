@@ -242,7 +242,7 @@ function printGPSDebug(data) {
     if (!box) return;
     box.innerHTML = `
         <strong>GPS Debug Info</strong><br>
-        Lat: ${data.latitude} / Lng: ${data.longitude}<br>
+        Lat: ${data.latitude.toFixed(4)} / Lng: ${data.longitude.toFixed(4)}<br>
         Acc: ${data.accuracy.toFixed(2)} m / Dist: ${data.distance.toFixed(2)} m<br>
     `;
 }
