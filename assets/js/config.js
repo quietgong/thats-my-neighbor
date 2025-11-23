@@ -295,12 +295,3 @@ const ART_WORKS = [
         position: {lat: 35.10900130097335, lng: 128.9420814374489}
     },
 ];
-
-function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
-function isAndroid() {
-    return /Android/.test(navigator.userAgent);
-}

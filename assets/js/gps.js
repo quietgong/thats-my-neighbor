@@ -281,64 +281,9 @@ function createArtworkMarker() {
     });
 }
 
-async function downloadWithProgress(url, onProgress) {
-    try {
-        const response = await fetch(url, {cache: "reload"});
-
-        // Content-Length 없으면 진행률 추적 불가 → 100%로 처리
-        const contentLength = response.headers.get("Content-Length");
-
-        // 일부 iOS 브라우저는 response.body 스트림을 지원하지 않음
-        if (!response.body || !contentLength) {
-            onProgress(100);
-            return await response.blob();
-        }
-
-        const total = parseInt(contentLength, 10);
-        const reader = response.body.getReader();
-        let received = 0;
-
-        const chunks = [];
-
-        while (true) {
-            const {done, value} = await reader.read();
-            if (done) break;
-
-            chunks.push(value);
-            received += value.length;
-
-            let percent = Math.floor((received / total) * 100);
-
-            // 모바일에서도 부드럽게 동작하도록 최소 보정
-            if (percent < 0) percent = 0;
-            if (percent > 100) percent = 100;
-
-            onProgress(percent);
-        }
-
-        onProgress(100); // 다운로드 완료 시 100% 확정
-
-        return new Blob(chunks);
-
-    } catch (err) {
-        console.error("downloadWithProgress error:", err);
-        onProgress(100);
-        return null;
-    }
-}
-
-
-function showArLoading() {
-    document.getElementById("ar-loading").style.display = "flex";
-}
-
-function hideArLoading() {
-    document.getElementById("ar-loading").style.display = "none";
-}
-
-function updateProgress(percent) {
-    document.getElementById("ar-progress-bar").style.width = percent + "%";
-    document.getElementById("ar-progress-percent").innerText = percent + "%";
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 async function activateAr(item) {
@@ -346,20 +291,22 @@ async function activateAr(item) {
     const viewer = document.getElementById("mainViewer");
 
     const usdzUrl = `${SITE_URL}/assets/usdz/${item.objId}.usdz`;
-    const glbUrl  = `${SITE_URL}/assets/glb/${item.objId}.glb`;
+    const glbUrl = `${SITE_URL}/assets/glb/${item.objId}.glb`;
 
     if (isIOS()) {
         // iOS: Quick Look 가장 안정적
         iosLink.href = usdzUrl;
         iosLink.click();
-    }
-    else {
+    } else {
         // Android/PC: model-viewer activateAR
         viewer.src = glbUrl;
         viewer.activateAR();
+        if (IS_AR_INITIALIZED) {
+            IS_GPS_INITIALIZED = true;
+            viewer.activateAR();
+        }
     }
 }
-
 
 function getUserIdFromLocalStorage() {
     const data = JSON.parse(localStorage.getItem("userId"));
