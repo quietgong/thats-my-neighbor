@@ -342,41 +342,22 @@ function updateProgress(percent) {
 }
 
 async function activateAr(item) {
-    showArLoading();
-
+    const iosLink = document.getElementById("ar-ios-link");
     const viewer = document.getElementById("mainViewer");
 
-    const modelUrl = isIOS()
-        ? `${SITE_URL}/assets/usdz/${item.objId}.usdz?v=${Date.now()}`
-        : `${SITE_URL}/assets/glb/${item.objId}.glb?v=${Date.now()}`;
+    const usdzUrl = `${SITE_URL}/assets/usdz/${item.objId}.usdz`;
+    const glbUrl  = `${SITE_URL}/assets/glb/${item.objId}.glb`;
 
-    // 진행률 표시 (파일 다운로드만)
-    await downloadWithProgress(modelUrl, updateProgress);
-
-    // 실제 model-viewer 로드는 Blob 대신 URL 기반
-    viewer.src = modelUrl;
-
-    let activated = false;
-
-    // 1) load 이벤트가 발생하면 즉시 실행
-    viewer.addEventListener("load", () => {
-        if (activated) return;
-        activated = true;
-
-        hideArLoading();
+    if (isIOS()) {
+        // iOS: Quick Look 가장 안정적
+        iosLink.href = usdzUrl;
+        iosLink.click();
+    }
+    else {
+        // Android/PC: model-viewer activateAR
+        viewer.src = glbUrl;
         viewer.activateAR();
-    }, {once: true});
-
-    // 2) OS에 관계 없이 fallback 적용 (iOS/Android/PC 모두 적용)
-    setTimeout(() => {
-        if (!activated) {
-            console.warn("⚠️ load 이벤트 없음 → fallback AR activate");
-            activated = true;
-
-            hideArLoading();
-            viewer.activateAR();
-        }
-    }, 3000); // 보편적으로 3초가 가장 안정적
+    }
 }
 
 
