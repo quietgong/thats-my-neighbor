@@ -134,7 +134,11 @@ function mapImageOverlay(type) {
         "MUSEUM": {"image": MUSEUM_IMAGE, "bounds": MUSEUM_BOUNDS},
         "GALLERY": {"image": GALLERY_IMAGE, "bounds": GALLERY_BOUNDS},
     };
-    new google.maps.GroundOverlay(overlay[type]["image"], new google.maps.LatLngBounds(overlay[type]["bounds"]["SW"], overlay[type]["bounds"]["NE"]), {opacity: 1}).setMap(map);
+    new google.maps.GroundOverlay(
+        overlay[type]["image"],
+        new google.maps.LatLngBounds(overlay[type]["bounds"]["SW"], overlay[type]["bounds"]["NE"]),
+        {opacity: 1, clickable: false}
+    ).setMap(map);
 }
 
 async function initMap() {
@@ -145,7 +149,6 @@ async function initMap() {
     mapImageOverlay("MUSEUM");
     mapImageOverlay("GALLERY");
 
-    // 초기 줌 우회 적용
     google.maps.event.addListenerOnce(map, "idle", () => {
         map.setZoom(TARGET_ZOOM_LEVEL)
     });
@@ -154,7 +157,12 @@ async function initMap() {
         console.log("현재 Zoom Level:", map.getZoom());
     });
 
-    // 마커 생성
+    google.maps.event.addListener(map, "click", (event) => {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+        console.log("클릭한 위치 좌표:", lat, lng);
+    });
+
     createArtworkMarker();
 
     console.log(`initMap 완료`)
@@ -227,16 +235,14 @@ async function handleGPS(position) {
     await uploadMyCurrentLocation();
 }
 
-
 function createArtworkMarker() {
     const originalWidth = 1920;
     const originalHeight = 1080;
     const aspectRatio = originalHeight / originalWidth;
     const scaledWidth = AR_MARKER_SIZE;
     const scaledHeight = AR_MARKER_SIZE * aspectRatio;
-    const viewer = document.getElementById("mainViewer");
     // 설치물 마커 표시
-    ART_WORKS_WITH_POSITIONS.forEach(item => {
+    ART_WORKS.forEach(item => {
         const marker = new google.maps.Marker({
             position: item.position,
             map,
@@ -250,14 +256,19 @@ function createArtworkMarker() {
 
         // 🔥 클릭 시 AR 실행
         marker.addListener("click", () => {
-            viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
-            viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-            // GLB가 로딩될 때까지 기다렸다가 AR 실행
-            viewer.addEventListener("load", () => {
-                viewer.activateAR();
-            }, {once: true});  // ⭐ 한 번만 실행되도록
+            activateAr(item);
         });
     });
+}
+
+function activateAr(item) {
+    const viewer = document.getElementById("mainViewer");
+    viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
+    viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
+    viewer.activateAR();
+    if (IS_AR_INITIALIZED) {
+        viewer.activateAR();
+    }
 }
 
 function getUserIdFromLocalStorage() {

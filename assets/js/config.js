@@ -135,6 +135,7 @@ const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
 const AR_MARKER_SIZE = 160;
+const IS_AR_INITIALIZED = false;
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
@@ -232,117 +233,37 @@ const ART_WORKS = [
     {
         name: "1-1",
         objId: "obj1",
-        scale: 0.1
+        scale: 0.1,
+        position: {lat: 35.10942538491098, lng: 128.9427596832875}
     },
     {
         name: "1-2",
         objId: "obj1",
-        scale: 0.1
+        scale: 0.1,
+        position: {lat: 35.10916411166995, lng: 128.94228642839087}
     },
     {
         name: "2-1",
         objId: "obj2",
-        scale: 1
+        scale: 1,
+        position: {lat: 35.10934982638116, lng: 128.9428083730949}
     },
     {
         name: "2-2",
         objId: "obj2",
-        scale: 1
+        scale: 1,
+        position: {lat: 35.10916886696274, lng: 128.94351381603204}
     },
     {
         name: "3-1",
         objId: "obj3",
-        scale: 1
+        scale: 1,
+        position: {lat: 35.10936842508164, lng: 128.94265167295467}
     },
     {
         name: "3-2",
         objId: "obj3",
-        scale: 1
+        scale: 1,
+        position: {lat: 35.10900130097335, lng: 128.9420814374489}
     },
-];
-
-function getRandomPositionInBounds(bounds) {
-    const lat = bounds.SW.lat + Math.random() * (bounds.NE.lat - bounds.SW.lat);
-    const lng = bounds.SW.lng + Math.random() * (bounds.NE.lng - bounds.SW.lng);
-    return {lat, lng};
-}
-
-function generateNonOverlappingPosition(bounds, existingPositions, minSpacing = 10) {
-    // minSpacing: 최소 간격(m) → 전시장 규모에 따라 조절 가능
-    // 반복해서 배치 시도
-    for (let i = 0; i < 50; i++) {
-        const pos = getRandomPositionInBounds(bounds);
-        let isTooClose = false;
-
-        for (const prev of existingPositions) {
-            const dist = getDistanceMeters(pos.lat, pos.lng, prev.lat, prev.lng);
-            if (dist < minSpacing) {
-                isTooClose = true;
-                break;
-            }
-        }
-
-        if (!isTooClose) return pos;
-    }
-
-    // 50번 실패하면 그냥 마지막 값 사용(매우 드문 케이스)
-    return getRandomPositionInBounds(bounds);
-}
-
-// 그룹화 함수
-function groupByObjId(artworks) {
-    const groups = {};
-    artworks.forEach(item => {
-        if (!groups[item.objId]) groups[item.objId] = [];
-        groups[item.objId].push(item);
-    });
-    return groups;
-}
-
-const groups = groupByObjId(ART_WORKS);
-const galleryItems = [];
-const museumItems = [];
-
-// objId별 1개씩 GALLERY에 배치
-Object.keys(groups).forEach(objId => {
-    const items = groups[objId];
-
-    // 랜덤 하나 선택
-    const selected = items[Math.floor(Math.random() * items.length)];
-    galleryItems.push(selected);
-
-    // 나머지 MUSEUM 영역
-    items.forEach(item => {
-        if (item !== selected) museumItems.push(item);
-    });
-});
-
-const assignedPositions = [];
-
-// GALLERY 배치 (서로 최소 3m 이상 간격)
-const positionedGalleryItems = galleryItems.map(item => {
-    const position = generateNonOverlappingPosition(
-        GALLERY_BOUNDS,
-        assignedPositions,
-        3
-    );
-    assignedPositions.push(position);
-    return {...item, position};
-});
-
-// MUSEUM 전체 배치
-const positionedMuseumItems = museumItems.map(item => {
-    const position = generateNonOverlappingPosition(
-        MUSEUM_BOUNDS,
-        assignedPositions,
-        3
-    );
-    assignedPositions.push(position);
-    return {...item, position};
-});
-
-// 최종 배열
-const ART_WORKS_WITH_POSITIONS = [
-    ...positionedGalleryItems,
-    ...positionedMuseumItems
 ];
