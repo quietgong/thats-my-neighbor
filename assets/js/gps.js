@@ -282,33 +282,51 @@ function createArtworkMarker() {
 }
 
 async function downloadWithProgress(url, onProgress) {
-    const response = await fetch(url);
+    try {
+        const response = await fetch(url, {cache: "reload"});
 
-    if (!response.body) {
-        // 브라우저가 Stream을 지원하지 않을 경우 100%로 처리
+        // Content-Length 없으면 진행률 추적 불가 → 100%로 처리
+        const contentLength = response.headers.get("Content-Length");
+
+        // 일부 iOS 브라우저는 response.body 스트림을 지원하지 않음
+        if (!response.body || !contentLength) {
+            onProgress(100);
+            return await response.blob();
+        }
+
+        const total = parseInt(contentLength, 10);
+        const reader = response.body.getReader();
+        let received = 0;
+
+        const chunks = [];
+
+        while (true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+
+            chunks.push(value);
+            received += value.length;
+
+            let percent = Math.floor((received / total) * 100);
+
+            // 모바일에서도 부드럽게 동작하도록 최소 보정
+            if (percent < 0) percent = 0;
+            if (percent > 100) percent = 100;
+
+            onProgress(percent);
+        }
+
+        onProgress(100); // 다운로드 완료 시 100% 확정
+
+        return new Blob(chunks);
+
+    } catch (err) {
+        console.error("downloadWithProgress error:", err);
         onProgress(100);
-        return await response.blob();
+        return null;
     }
-
-    const reader = response.body.getReader();
-    const contentLength = +response.headers.get("Content-Length");
-
-    let received = 0;
-    let chunks = [];
-
-    while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-
-        chunks.push(value);
-        received += value.length;
-
-        const percent = Math.floor((received / contentLength) * 100);
-        onProgress(percent);
-    }
-
-    return new Blob(chunks);
 }
+
 
 function showArLoading() {
     document.getElementById("ar-loading").style.display = "flex";
@@ -324,27 +342,38 @@ function updateProgress(percent) {
 }
 
 async function activateAr(item) {
-    const viewer = document.getElementById("mainViewer");
     showArLoading();
 
-    let srcUrl = isIOS()
+    const viewer = document.getElementById("mainViewer");
+
+    const modelUrl = isIOS()
         ? `${SITE_URL}/assets/usdz/${item.objId}.usdz?v=${Date.now()}`
         : `${SITE_URL}/assets/glb/${item.objId}.glb?v=${Date.now()}`;
 
-    // 1️⃣ 실제 다운로드 진행률 추적
-    const blob = await downloadWithProgress(srcUrl, (percent) => {
-        updateProgress(percent);
-    });
+    // 진행률 표시 (파일 다운로드만)
+    await downloadWithProgress(modelUrl, updateProgress);
 
-    // 2️⃣ 다운로드 완료 후 viewer에 로드
-    const blobUrl = URL.createObjectURL(blob);
-    viewer.src = blobUrl;
+    // 실제 model-viewer 로드는 Blob 대신 URL 기반
+    viewer.src = modelUrl;
 
-    // 3️⃣ 모델뷰어 내부 로딩 완료 시 AR 실행
+    let loadTriggered = false;
+
     viewer.addEventListener("load", () => {
+        loadTriggered = true;
         hideArLoading();
         viewer.activateAR();
     }, {once: true});
+
+    // iOS Quick Look(usdz)에서는 load 이벤트가 잘 안들어오는 경우를 대비
+    if (isIOS()) {
+        setTimeout(() => {
+            if (!loadTriggered) {
+                console.warn("iOS fallback AR activate");
+                hideArLoading();
+                viewer.activateAR();
+            }
+        }, 2500); // 약 2~3초 fallback
+    }
 }
 
 
