@@ -29,6 +29,8 @@ let MOCK_USERS = [
 const userMarkers = new Map();
 const currentUser = {id: "", lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]};
 const kalman = new KalmanFilterGps(0.00001, 0.0001);
+const artworkMarkers = new Map(); // AR 작품 마커 저장용
+
 
 // APIs
 async function uploadMyCurrentLocation() {
@@ -152,8 +154,26 @@ async function initMap() {
         map.setZoom(TARGET_ZOOM_LEVEL)
     });
 
+    // google.maps.event.addListener(map, "zoom_changed", () => {
+    //     console.log("현재 Zoom Level:", map.getZoom());
+    // });
     google.maps.event.addListener(map, "zoom_changed", () => {
-        console.log("현재 Zoom Level:", map.getZoom());
+        const zoom = map.getZoom();
+        const scaleFactor = Math.pow(0.8, TARGET_ZOOM_LEVEL - zoom);
+        artworkMarkers.forEach((data, key) => {
+            const {marker, aspectRatio} = data;
+            if (marker.title === "1-1" || marker.title === "2-1" || marker.title === "3-1") {
+                const base = AR_MARKER_SIZE;
+                const newWidth = base * scaleFactor;
+                const newHeight = base * aspectRatio * scaleFactor;
+
+                marker.setIcon({
+                    url: `${SITE_URL}/assets/marker/AR_Marker_${key}.png`,
+                    scaledSize: new google.maps.Size(newWidth, newHeight),
+                    anchor: new google.maps.Point(newWidth / 2, newHeight / 2)
+                });
+            }
+        });
     });
 
     google.maps.event.addListener(map, "click", (event) => {
@@ -180,7 +200,7 @@ function trackingGps() {
 
     currentUser.id = getUserIdFromLocalStorage();
     if (USE_MOCK) {
-        MOCK_USERS.push({id: currentUser["id"], lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]});
+        MOCK_USERS.push({id: currentUser["id"], lat: CENTER_GALLERY_POSITION.lat, lng: CENTER_GALLERY_POSITION.lng});
         setInterval(async () => {
             moveAllMockUsers();
             await updateUsersLocation();
@@ -195,36 +215,23 @@ function trackingGps() {
 async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
 
-    // 1) 최초 GPS 신호 초기화
-    if (!IS_GPS_INITIALIZED) {
-        IS_GPS_INITIALIZED = true;
-        return;
-    }
-
-    // 2) 정확도 체크
     if (accuracy > VALID_GPS_ACCURACY) {
         console.warn("GPS accuracy too low → ignored");
         return;
     }
 
-    // 3) 칼만 필터 적용
+    if (!IS_GPS_INITIALIZED) {
+        IS_GPS_INITIALIZED = true;
+        return;
+    }
+
     const filtered = kalman.filter(latitude, longitude);
-
-    // 4) 거리 계산
-    const dist = getDistanceMeters(
-        currentUser.lat,
-        currentUser.lng,
-        filtered.lat,
-        filtered.lng
-    );
-
-    // 5) 갑작스런 점프(10m 이상) 무시
+    const dist = getDistanceMeters(currentUser.lat, currentUser.lng, filtered.lat, filtered.lng);
     if (dist > VALID_GPS_DISTANCE) {
         console.warn(`GPS jump detected: ${dist.toFixed(1)}m → ignored`);
         return;
     }
 
-    // 6) 정상 업데이트
     currentUser.lat = filtered.lat;
     currentUser.lng = filtered.lng;
     console.log(`보정된 위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
@@ -237,10 +244,12 @@ function createArtworkMarker() {
     const originalWidth = 1920;
     const originalHeight = 1080;
     const aspectRatio = originalHeight / originalWidth;
-    const scaledWidth = AR_MARKER_SIZE;
-    const scaledHeight = AR_MARKER_SIZE * aspectRatio;
-    // 설치물 마커 표시
+
     ART_WORKS.forEach(item => {
+        const baseSize = AR_MARKER_SIZE;
+        const scaledWidth = baseSize;
+        const scaledHeight = baseSize * aspectRatio;
+
         const marker = new google.maps.Marker({
             position: item.position,
             map,
@@ -252,10 +261,13 @@ function createArtworkMarker() {
             }
         });
 
-        // 🔥 클릭 시 AR 실행
-        marker.addListener("click", () => {
-            activateAr(item);
+        // 🔥 aspectRatio를 포함하여 저장해야 함
+        artworkMarkers.set(item.name, {
+            marker: marker,
+            aspectRatio: aspectRatio
         });
+
+        marker.addListener("click", () => activateAr(item));
     });
 }
 

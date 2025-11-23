@@ -129,8 +129,9 @@ const MAP_STYLE = [
         ]
     }
 ];
-const TARGET_ZOOM_LEVEL = 21; // 실제로 적용할 줌 레벨
-const MIN_ZOOM_LEVEL = 16;
+const TARGET_ZOOM_LEVEL = 20; // 실제로 적용할 줌 레벨
+const MIN_ZOOM_LEVEL = 17;
+const GALLERY_SCALE = 2;
 
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 let IS_GPS_INITIALIZED = false;
@@ -170,7 +171,7 @@ if (mode === "1") {
         SW: {lat: 35.10928655, lng: 128.94263734},
         NE: {lat: 35.10946673, lng: 128.94286114}
     };
-
+    GALLERY_BOUNDS = scaleBounds(GALLERY_BOUNDS);
 }
 if (mode === "2") {
     MUSEUM_BOUNDS = {
@@ -207,7 +208,7 @@ const MAP_OPTIONS = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: false,
-    // minZoom: MIN_ZOOM_LEVEL,
+    minZoom: MIN_ZOOM_LEVEL,
     streetViewControl: false,
     gestureHandling: "greedy",
     disableDefaultUI: true,
@@ -232,37 +233,59 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function scaleBounds(bounds) {
+    const centerLat = (bounds.SW.lat + bounds.NE.lat) / 2;
+    const centerLng = (bounds.SW.lng + bounds.NE.lng) / 2;
+
+    const halfLat = (bounds.NE.lat - bounds.SW.lat) / 2;
+    const halfLng = (bounds.NE.lng - bounds.SW.lng) / 2;
+
+    const newHalfLat = halfLat * GALLERY_SCALE;
+    const newHalfLng = halfLng * GALLERY_SCALE;
+
+    return {
+        SW: {
+            lat: centerLat - newHalfLat,
+            lng: centerLng - newHalfLng
+        },
+        NE: {
+            lat: centerLat + newHalfLat,
+            lng: centerLng + newHalfLng
+        }
+    };
+}
+
 // 설치물 정보
 const ART_WORKS = [
     {
         name: "1-1",
         objId: "obj1",
         scale: 0.1,
-        position: {lat: 35.10942538491098, lng: 128.9427596832875}
+        position: {lat: 35.10924721955687, lng: 128.9425949498616}
     },
     {
         name: "1-2",
         objId: "obj1",
         scale: 0.1,
-        position: {lat: 35.10916411166995, lng: 128.94228642839087}
+        position: {lat: 35.110270589026314, lng: 128.94222227635723}
     },
     {
         name: "2-1",
         objId: "obj2",
         scale: 1,
-        position: {lat: 35.10934982638116, lng: 128.9428083730949}
+        position: {lat: 35.109516418938135, lng: 128.9426413835281}
     },
     {
         name: "2-2",
         objId: "obj2",
         scale: 1,
-        position: {lat: 35.10916886696274, lng: 128.94351381603204}
+        position: {lat: 35.10945522118586, lng: 128.94384858658117}
     },
     {
         name: "3-1",
         objId: "obj3",
         scale: 1,
-        position: {lat: 35.10936842508164, lng: 128.94265167295467}
+        position: {lat: 35.109354918272466, lng: 128.94293666827707}
     },
     {
         name: "3-2",
