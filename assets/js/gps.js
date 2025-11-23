@@ -356,24 +356,27 @@ async function activateAr(item) {
     // 실제 model-viewer 로드는 Blob 대신 URL 기반
     viewer.src = modelUrl;
 
-    let loadTriggered = false;
+    let activated = false;
 
+    // 1) load 이벤트가 발생하면 즉시 실행
     viewer.addEventListener("load", () => {
-        loadTriggered = true;
+        if (activated) return;
+        activated = true;
+
         hideArLoading();
         viewer.activateAR();
     }, {once: true});
 
-    // iOS Quick Look(usdz)에서는 load 이벤트가 잘 안들어오는 경우를 대비
-    if (isIOS()) {
-        setTimeout(() => {
-            if (!loadTriggered) {
-                console.warn("iOS fallback AR activate");
-                hideArLoading();
-                viewer.activateAR();
-            }
-        }, 2500); // 약 2~3초 fallback
-    }
+    // 2) OS에 관계 없이 fallback 적용 (iOS/Android/PC 모두 적용)
+    setTimeout(() => {
+        if (!activated) {
+            console.warn("⚠️ load 이벤트 없음 → fallback AR activate");
+            activated = true;
+
+            hideArLoading();
+            viewer.activateAR();
+        }
+    }, 3000); // 보편적으로 3초가 가장 안정적
 }
 
 
