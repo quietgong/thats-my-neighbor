@@ -162,7 +162,6 @@ html, body {
     color: white;
     font-size: 18px;
     font-weight: 600;
-    border-radius: 0 0 12px 12px; /* 모달 하단 모서리와 자연스럽게 연결 */
     cursor: pointer;
     transition: background 0.2s ease;
 }
