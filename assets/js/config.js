@@ -133,11 +133,13 @@ const TARGET_ZOOM_LEVEL = 21; // 실제로 적용할 줌 레벨
 const MIN_ZOOM_LEVEL = 16;
 
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
+let IS_GPS_INITIALIZED = false;
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const VALID_GPS_DISTANCE = 10; // 업데이트할만한 이전, 현재 GPS 거리 차이 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
+
 const AR_MARKER_SIZE = 160;
-const IS_AR_INITIALIZED = false;
+let IS_AR_INITIALIZED = false;
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {

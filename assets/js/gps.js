@@ -26,7 +26,6 @@ let MOCK_USERS = [
         lng: CENTER_GALLERY_POSITION["lng"],
     }
 ];
-let isGpsInitialized = false;
 const userMarkers = new Map();
 const currentUser = {id: "", lat: CENTER_GALLERY_POSITION["lat"], lng: CENTER_GALLERY_POSITION["lng"]};
 const kalman = new KalmanFilterGps(0.00001, 0.0001);
@@ -170,7 +169,7 @@ async function initMap() {
 
 function trackingGps() {
     console.log(`GPS 시작`)
-    isGpsInitialized = true;
+    IS_GPS_INITIALIZED = true;
     currentUser.lat = CENTER_GALLERY_POSITION.lat
     currentUser.lng = CENTER_GALLERY_POSITION.lng
     updateUserMarker(currentUser);
@@ -197,8 +196,8 @@ async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
 
     // 1) 최초 GPS 신호 초기화
-    if (!isGpsInitialized) {
-        isGpsInitialized = true;
+    if (!IS_GPS_INITIALIZED) {
+        IS_GPS_INITIALIZED = true;
         return;
     }
 
@@ -266,6 +265,7 @@ function activateAr(item) {
     viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
     viewer.activateAR();
     if (IS_AR_INITIALIZED) {
+        IS_AR_INITIALIZED = true;
         viewer.activateAR();
     }
 }
