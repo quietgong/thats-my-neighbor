@@ -220,12 +220,7 @@ async function handleGPS(position) {
     }
 
     // 거리 계산
-    const distance = getDistanceMeters(
-        currentUser.lat,
-        currentUser.lng,
-        latitude,
-        longitude
-    );
+    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, latitude, longitude);
 
     printGPSDebug({latitude, longitude, accuracy, distance});
 
@@ -248,7 +243,7 @@ function printGPSDebug(data) {
     box.innerHTML = `
         <strong>GPS Debug Info</strong><br>
         Lat: ${data.latitude} / Lng: ${data.longitude}<br>
-        Acc: ${data.accuracy} m / Dist: ${data.distance} m<br>
+        Acc: ${data.accuracy} m / Dist: ${data.distance.toFixed(2)} m<br>
     `;
 }
 
