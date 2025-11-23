@@ -205,7 +205,7 @@ const MAP_OPTIONS = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: false,
-    minZoom: MIN_ZOOM_LEVEL,
+    // minZoom: MIN_ZOOM_LEVEL,
     streetViewControl: false,
     gestureHandling: "greedy",
     disableDefaultUI: true,
