@@ -191,7 +191,8 @@ function trackingGps() {
     updateUserMarker(currentUser);
 
     // GPS 추적
-    navigator.geolocation.watchPosition(handleGPS, () => {}, {enableHighAccuracy: true});
+    navigator.geolocation.watchPosition(handleGPS, () => {
+    }, {enableHighAccuracy: true});
 
     if (USE_MOCK) {
         MOCK_USERS.push({id: currentUser["id"], lat: CENTER_GALLERY_POSITION.lat, lng: CENTER_GALLERY_POSITION.lng});
@@ -208,17 +209,35 @@ function trackingGps() {
 
 async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
-    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, latitude, longitude);
+
+    // 첫 GPS는 jump 체크 없이 바로 반영한다
+    if (!IS_GPS_INITIALIZED) {
+        IS_GPS_INITIALIZED = true;
+        currentUser.lat = latitude;
+        currentUser.lng = longitude;
+        printGPSDebug({latitude, longitude, accuracy, distance: 0});
+        return;
+    }
+
+    // 거리 계산
+    const distance = getDistanceMeters(
+        currentUser.lat,
+        currentUser.lng,
+        latitude,
+        longitude
+    );
+
     printGPSDebug({latitude, longitude, accuracy, distance});
 
+    // jump 필터
     if (distance > VALID_GPS_DISTANCE) {
         console.warn(`GPS jump detected: ${distance.toFixed(1)}m → ignored`);
         return;
     }
 
+    // 정상 업데이트
     currentUser.lat = latitude;
     currentUser.lng = longitude;
-    console.log(`위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
     updateUserMarker(currentUser);
     await uploadMyCurrentLocation();
 }
