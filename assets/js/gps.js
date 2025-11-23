@@ -261,6 +261,7 @@ function createArtworkMarker() {
             position: item.position,
             map,
             title: item.name,
+            draggable:true,
             icon: {
                 url: `${SITE_URL}/assets/marker/AR_Marker_${item.name}.png`,
                 scaledSize: new google.maps.Size(scaledWidth, scaledHeight),
