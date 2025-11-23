@@ -129,7 +129,7 @@ const MAP_STYLE = [
         ]
     }
 ];
-const TARGET_ZOOM_LEVEL = 22; // 실제로 적용할 줌 레벨
+const TARGET_ZOOM_LEVEL = 21; // 실제로 적용할 줌 레벨
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
@@ -157,8 +157,8 @@ const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
 const mode = "1";
 if (mode === "1") {
     MUSEUM_BOUNDS = {
-        SW: {lat: 35.1088968, lng: 128.9421497},
-        NE: {lat: 35.1102139, lng: 128.9436165},
+        SW: {lat: 35.107652, lng: 128.941041},
+        NE: {lat: 35.110951, lng: 128.945074}
     };
     GALLERY_BOUNDS = {
         SW: {lat: 35.10928655, lng: 128.94263734},
@@ -201,7 +201,7 @@ const MAP_OPTIONS = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: true,
-    minZoom: 19,
+    minZoom: 18,
     streetViewControl: false,
     gestureHandling: "greedy",
     // restriction: {
@@ -224,7 +224,6 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
 
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
 
 const GALLERY_COUNT = 1; // 전시장 내부에 위치할 마커는 최소 2개
 
