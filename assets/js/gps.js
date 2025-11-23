@@ -208,7 +208,7 @@ function trackingGps() {
 
 async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
-    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, longitude, longitude);
+    const distance = getDistanceMeters(currentUser.lat, currentUser.lng, latitude, longitude);
     printGPSDebug({latitude, longitude, accuracy, distance});
 
     if (distance > VALID_GPS_DISTANCE) {
