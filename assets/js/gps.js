@@ -185,16 +185,14 @@ async function initMap() {
 
 function trackingGps() {
     console.log(`GPS 시작`)
-    IS_GPS_INITIALIZED = true;
+    currentUser.id = getUserIdFromLocalStorage();
     currentUser.lat = CENTER_GALLERY_POSITION.lat
     currentUser.lng = CENTER_GALLERY_POSITION.lng
     updateUserMarker(currentUser);
 
     // GPS 추적
-    navigator.geolocation.watchPosition(handleGPS, () => {
-    }, {enableHighAccuracy: true});
+    navigator.geolocation.watchPosition(handleGPS, () => {}, {enableHighAccuracy: true});
 
-    currentUser.id = getUserIdFromLocalStorage();
     if (USE_MOCK) {
         MOCK_USERS.push({id: currentUser["id"], lat: CENTER_GALLERY_POSITION.lat, lng: CENTER_GALLERY_POSITION.lng});
         setInterval(async () => {
@@ -211,7 +209,6 @@ function trackingGps() {
 async function handleGPS(position) {
     const {latitude, longitude, accuracy} = position.coords;
     const distance = getDistanceMeters(currentUser.lat, currentUser.lng, longitude, longitude);
-
     printGPSDebug({latitude, longitude, accuracy, distance});
 
     if (distance > VALID_GPS_DISTANCE) {
@@ -231,10 +228,8 @@ function printGPSDebug(data) {
     if (!box) return;
     box.innerHTML = `
         <strong>GPS Debug Info</strong><br>
-        Lat: ${data.latitude}<br>
-        Lng: ${data.longitude}<br>
-        Accuracy: ${data.accuracy} m<br>
-        Distance: ${data.distance} m<br>
+        Lat: ${data.latitude} / Lng: ${data.longitude}<br>
+        Acc: ${data.accuracy} m / Dist: ${data.distance} m<br>
     `;
 }
 
