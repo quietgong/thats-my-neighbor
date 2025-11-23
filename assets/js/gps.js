@@ -190,13 +190,7 @@ async function handleGPS(position) {
 
     // 1) 최초 GPS 신호 초기화
     if (!isGpsInitialized) {
-        const filtered = kalman.filter(latitude, longitude);
-        currentUser.lat = filtered.lat;
-        currentUser.lng = filtered.lng;
         isGpsInitialized = true;
-
-        updateUserMarker(currentUser);
-        await uploadMyCurrentLocation();
         return;
     }
 

@@ -134,7 +134,7 @@ const MIN_ZOOM_LEVEL = 16;
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
-const AR_MARKER_SIZE = 140;
+const AR_MARKER_SIZE = 160;
 
 // 구글맵 지도 범위 (을숙도)
 const MAP_BOUNDS = {
@@ -201,10 +201,11 @@ const MAP_OPTIONS = {
     styles: MAP_STYLE,
     mapTypeControl: false,
     fullscreenControl: false,
-    zoomControl: true,
+    zoomControl: false,
     minZoom: MIN_ZOOM_LEVEL,
     streetViewControl: false,
     gestureHandling: "greedy",
+    disableDefaultUI: true,
     // restriction: {
     //     latLngBounds: MAP_BOUNDS,
     //     strictBounds: false,
