@@ -163,6 +163,10 @@ async function initMap() {
 function trackingGps() {
     console.log(`GPS 시작`)
     isGpsInitialized = true;
+    currentUser.lat = CENTER_GALLERY_POSITION.lat
+    currentUser.lng = CENTER_GALLERY_POSITION.lng
+    updateUserMarker(currentUser);
+
     // GPS 추적
     navigator.geolocation.watchPosition(handleGPS, () => {
     }, {enableHighAccuracy: true});
@@ -182,21 +186,53 @@ function trackingGps() {
 }
 
 async function handleGPS(position) {
-    if (isGpsInitialized && position.coords.accuracy <= VALID_GPS_ACCURACY) {
-        // 현재 나의 위치 정보 얻기
-        const {latitude, longitude} = position.coords;
+    const {latitude, longitude, accuracy} = position.coords;
+
+    // 1) 최초 GPS 신호 초기화
+    if (!isGpsInitialized) {
         const filtered = kalman.filter(latitude, longitude);
         currentUser.lat = filtered.lat;
         currentUser.lng = filtered.lng;
-        console.log(`현재 나의 위치: ${JSON.stringify(currentUser, null, 2)}`);
+        isGpsInitialized = true;
 
-        // 나의 위치 마커 업데이트
         updateUserMarker(currentUser);
-
-        // 나의 위치 DB 업로드
         await uploadMyCurrentLocation();
+        return;
     }
+
+    // 2) 정확도 체크
+    if (accuracy > VALID_GPS_ACCURACY) {
+        console.warn("GPS accuracy too low → ignored");
+        return;
+    }
+
+    // 3) 칼만 필터 적용
+    const filtered = kalman.filter(latitude, longitude);
+
+    // 4) 거리 계산
+    const dist = getDistanceMeters(
+        currentUser.lat,
+        currentUser.lng,
+        filtered.lat,
+        filtered.lng
+    );
+
+    // 5) 갑작스런 점프(20m 이상) 무시
+    if (dist > 20) {
+        console.warn(`GPS jump detected: ${dist.toFixed(1)}m → ignored`);
+        return;
+    }
+
+    // 6) 정상 업데이트
+    currentUser.lat = filtered.lat;
+    currentUser.lng = filtered.lng;
+
+    console.log(`보정된 위치 업데이트: ${JSON.stringify(currentUser, null, 2)}`);
+
+    updateUserMarker(currentUser);
+    await uploadMyCurrentLocation();
 }
+
 
 function createArtworkMarker() {
     const originalWidth = 1920;
@@ -222,7 +258,10 @@ function createArtworkMarker() {
         marker.addListener("click", () => {
             viewer.scale = `${item.scale} ${item.scale} ${item.scale}`;
             viewer.src = `${SITE_URL}/assets/glb/${item.objId}.glb`;
-            viewer.activateAR();
+            // GLB가 로딩될 때까지 기다렸다가 AR 실행
+            viewer.addEventListener("load", () => {
+                viewer.activateAR();
+            }, {once: true});  // ⭐ 한 번만 실행되도록
         });
     });
 }

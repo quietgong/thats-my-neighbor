@@ -130,6 +130,7 @@ const MAP_STYLE = [
     }
 ];
 const TARGET_ZOOM_LEVEL = 21; // 실제로 적용할 줌 레벨
+const MIN_ZOOM_LEVEL = 16;
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 const VALID_GPS_ACCURACY = 30; // 업데이트할만한 GPS 정확도 기준
 const UPDATE_INTERVAL = 3 * 1000 // 위치 업데이트 주기
@@ -201,7 +202,7 @@ const MAP_OPTIONS = {
     mapTypeControl: false,
     fullscreenControl: false,
     zoomControl: true,
-    minZoom: 18,
+    minZoom: MIN_ZOOM_LEVEL,
     streetViewControl: false,
     gestureHandling: "greedy",
     // restriction: {
@@ -225,38 +226,36 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const GALLERY_COUNT = 1; // 전시장 내부에 위치할 마커는 최소 2개
-
 // 설치물 정보
 const ART_WORKS = [
     {
         name: "1-1",
-        objId: "obj1_output",
+        objId: "obj1",
         scale: 0.1
     },
     {
         name: "1-2",
-        objId: "obj1_output",
+        objId: "obj1",
         scale: 0.1
     },
     {
         name: "2-1",
-        objId: "obj2_output",
+        objId: "obj2",
         scale: 1
     },
     {
         name: "2-2",
-        objId: "obj2_output",
+        objId: "obj2",
         scale: 1
     },
     {
         name: "3-1",
-        objId: "obj3_output",
+        objId: "obj3",
         scale: 1
     },
     {
         name: "3-2",
-        objId: "obj3_output",
+        objId: "obj3",
         scale: 1
     },
 ];
@@ -289,24 +288,60 @@ function generateNonOverlappingPosition(bounds, existingPositions, minSpacing = 
     return getRandomPositionInBounds(bounds);
 }
 
+// 그룹화 함수
+function groupByObjId(artworks) {
+    const groups = {};
+    artworks.forEach(item => {
+        if (!groups[item.objId]) groups[item.objId] = [];
+        groups[item.objId].push(item);
+    });
+    return groups;
+}
+
+const groups = groupByObjId(ART_WORKS);
+const galleryItems = [];
+const museumItems = [];
+
+// objId별 1개씩 GALLERY에 배치
+Object.keys(groups).forEach(objId => {
+    const items = groups[objId];
+
+    // 랜덤 하나 선택
+    const selected = items[Math.floor(Math.random() * items.length)];
+    galleryItems.push(selected);
+
+    // 나머지 MUSEUM 영역
+    items.forEach(item => {
+        if (item !== selected) museumItems.push(item);
+    });
+});
 
 const assignedPositions = [];
 
-
-const ART_WORKS_WITH_POSITIONS = ART_WORKS.map((item, index) => {
-    const isGalleryItem = index < GALLERY_COUNT;
-    const bounds = isGalleryItem ? GALLERY_BOUNDS : MUSEUM_BOUNDS;
-
+// GALLERY 배치 (서로 최소 3m 이상 간격)
+const positionedGalleryItems = galleryItems.map(item => {
     const position = generateNonOverlappingPosition(
-        bounds,
+        GALLERY_BOUNDS,
         assignedPositions,
-        3  // 최소 3m 이상 간격
+        3
     );
-
     assignedPositions.push(position);
-
-    return {
-        ...item,
-        position
-    };
+    return {...item, position};
 });
+
+// MUSEUM 전체 배치
+const positionedMuseumItems = museumItems.map(item => {
+    const position = generateNonOverlappingPosition(
+        MUSEUM_BOUNDS,
+        assignedPositions,
+        3
+    );
+    assignedPositions.push(position);
+    return {...item, position};
+});
+
+// 최종 배열
+const ART_WORKS_WITH_POSITIONS = [
+    ...positionedGalleryItems,
+    ...positionedMuseumItems
+];
