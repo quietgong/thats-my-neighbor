@@ -6,13 +6,7 @@ const infoBtn = document.getElementById('infoBtn');
 let isInstructionModalShow = false;
 let isInfoModalShow = false;
 
-const INSTRUCTION_SEEN_KEY = 'visited'; // localStorage 키
-
 function showGuideModal() {
-    // if (!localStorage.getItem(INSTRUCTION_SEEN_KEY)) {
-    //     instructionModal.classList.add('show');
-    //     isInfoModalShow = true;
-    // }
     instructionModal.classList.add('show');
     isInstructionModalShow = true;
     isInfoModalShow = false;
@@ -20,7 +14,6 @@ function showGuideModal() {
 
 function closeGuideModal() {
     instructionModal.classList.remove('show');
-    localStorage.setItem(INSTRUCTION_SEEN_KEY, 'true'); // 사용자가 안내를 봤음을 기억
     isInstructionModalShow = false;
 }
 
@@ -178,24 +171,16 @@ function initializeLanguage(){
     ];
 
     for (const s of sections) {
-
         // 제목 변경
         const title = document.getElementById(s.titleId);
-        if (title) {
-            title.textContent = title.dataset.kr;
-        }
+        if (title) title.textContent = title.dataset.kr;
 
         // 본문 변경
         const container = document.getElementById(s.textId);
-        if (container) {
-            container.innerHTML = s.contentSet.kr
-                .map(text => `<p class="guide-line">${text}</p>`)
-                .join("");
-        }
+        if (container) container.innerHTML = s.contentSet.kr.map(text => `<p class="guide-line">${text}</p>`).join("");
     }
 }
 
-// 실제 운영
 document.addEventListener("DOMContentLoaded", function () {
     // 안내 모달이 이전에 본 적이 없으면 표시
     showGuideModal();
@@ -213,24 +198,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initializeLanguage();
 })
-
-// 테스트
-// document.addEventListener("DOMContentLoaded", function () {
-//     // 안내 모달이 이전에 본 적이 없으면 표시
-//     closeGuideModal();
-//
-//     // 사용 안내 모달 이벤트
-//     startBtn.addEventListener('click', closeGuideModal);
-//
-//     // INFO 모달 이벤트
-//     infoBtn.addEventListener('click', showInfoModal);
-//     closeInfoBtn.addEventListener('click', closeInfoModal);
-//
-//     // INFO 모달 외부 클릭 시 닫기
-//     instructionModal.addEventListener('click', clickOutModal);
-//     infoModal.addEventListener('click', clickOutModal);
-//
-//     initializeLanguage();
-//
-//     showInfoModal();
-// })

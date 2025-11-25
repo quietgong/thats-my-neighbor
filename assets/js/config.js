@@ -129,7 +129,7 @@ const MAP_STYLE = [
     ]
   }
 ];
-const TARGET_ZOOM_LEVEL = 18; // 실제로 적용할 줌 레벨
+const TARGET_ZOOM_LEVEL = 20; // 실제로 적용할 줌 레벨
 const MIN_ZOOM_LEVEL = 17;
 const GALLERY_SCALE = 2;
 
