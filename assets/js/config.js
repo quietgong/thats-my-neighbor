@@ -129,7 +129,7 @@ const MAP_STYLE = [
     ]
   }
 ];
-const TARGET_ZOOM_LEVEL = 20; // 실제로 적용할 줌 레벨
+const TARGET_ZOOM_LEVEL = 18; // 실제로 적용할 줌 레벨
 const MIN_ZOOM_LEVEL = 17;
 const GALLERY_SCALE = 2;
 
@@ -149,17 +149,11 @@ const MAP_BOUNDS = {
   east: 128.957813,
 };
 
-// 미술관 지도 범위 (부산현대미술관)
-let MUSEUM_BOUNDS;
+let MUSEUM_BOUNDS; // 미술관 지도 범위 (부산현대미술관)
+const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`; // 미술관 오버레이 이미지
+let GALLERY_BOUNDS; // 전시장 지도 범위 (부산현대미술관 2F)
+const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`; // 전시장 오버레이 이미지
 
-// 전시장 지도 범위 (부산현대미술관 2F)
-let GALLERY_BOUNDS;
-
-// 오버레이 이미지
-const MUSEUM_IMAGE = `${SITE_URL}/assets/img/museum.png`;
-const GALLERY_IMAGE = `${SITE_URL}/assets/img/gallery.png`;
-
-// const mode = prompt("1:(미술관), 2:(청주), 3:(플링커)");
 const urlSearchParams = new URLSearchParams(window.location.search);
 const place = urlSearchParams.get("place");
 if (place === "home") {
@@ -196,6 +190,12 @@ if (place === "home") {
 }
 
 // 전시장 가운데 위치
+const CENTER_MUSEUM_POSITION = {
+  lat: (MUSEUM_BOUNDS.SW.lat + MUSEUM_BOUNDS.NE.lat) / 2,
+  lng: (MUSEUM_BOUNDS.SW.lng + MUSEUM_BOUNDS.NE.lng) / 2,
+}
+
+// 전시장 가운데 위치
 const CENTER_GALLERY_POSITION = {
   lat: (GALLERY_BOUNDS.SW.lat + GALLERY_BOUNDS.NE.lat) / 2,
   lng: (GALLERY_BOUNDS.SW.lng + GALLERY_BOUNDS.NE.lng) / 2,
@@ -204,7 +204,7 @@ const CENTER_GALLERY_POSITION = {
 // 지도 옵션
 const MAP_OPTIONS = {
   center: CENTER_GALLERY_POSITION,
-  zoom: 20, // 줌 레벨 설정
+  zoom: 18, // 줌 레벨 설정
   styles: MAP_STYLE,
   mapTypeControl: false,
   fullscreenControl: false,
