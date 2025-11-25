@@ -22,11 +22,12 @@
             </button>
         </div>
     </section>
-    <div id="gps-debug" style="padding:10px; background:#f4f4f4; font-size:14px; line-height:1.6;">
-        <strong>GPS Debug Info</strong><br>
-        로딩 중...
-    </div>
-
+  <div class="overlay-shift-panel">
+  <button onclick="shiftMuseumOverlay(-1,0)">← 1m 왼쪽</button>
+  <button onclick="shiftMuseumOverlay(1,0)">→ 1m 오른쪽</button>
+  <button onclick="shiftMuseumOverlay(0,1)">↑ 1m 위로</button>
+  <button onclick="shiftMuseumOverlay(0,-1)">↓ 1m 아래로</button>
+</div>
 </div>
 
 <!-- 가이드 모달 (초기 로딩 시) -->
@@ -83,29 +84,10 @@
     </div>
 </div>
 
-<!-- AR 관련 UI -->
-<div id="ar-loading" class="ar-loader-overlay">
-  <div class="ar-loader-container">
-    <div class="ar-loading-title">AR 모델을 로딩 중입니다</div>
-
-    <div class="ar-progress-box">
-      <div id="ar-progress-bar" class="ar-progress-bar"></div>
-    </div>
-
-    <div id="ar-progress-percent" class="ar-progress-percent">0%</div>
-
-    <div class="ar-loading-sub">잠시만 기다려주세요…</div>
-  </div>
-</div>
-
-
-<model-viewer id="mainViewer"
-              preload
-              ar
-              ar-modes="scene-viewer webxr quick-look"
-              camera-controls>
-</model-viewer>
+<!-- AR 진입 요소 -->
+<model-viewer id="mainViewer" preload ar ar-modes="scene-viewer webxr quick-look" camera-controls></model-viewer>
 <a id="ar-ios-link" rel="ar" href="" style="display:none;"></a>
+
 
 <script src="assets/js/library/axios.js"></script>      <!-- axios 라이브러리 -->
 <script src="assets/js/library/animation.js"></script>  <!-- 마커 애니메이션 라이브러리 -->

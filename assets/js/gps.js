@@ -215,14 +215,12 @@ async function handleGPS(position) {
         IS_GPS_INITIALIZED = true;
         currentUser.lat = latitude;
         currentUser.lng = longitude;
-        printGPSDebug({latitude, longitude, accuracy, distance: 0});
+        // printGPSDebug({latitude, longitude, accuracy, distance: 0});
         return;
     }
 
     // 거리 계산
     const distance = getDistanceMeters(currentUser.lat, currentUser.lng, latitude, longitude);
-
-    printGPSDebug({latitude, longitude, accuracy, distance});
 
     // jump 필터
     if (distance > VALID_GPS_DISTANCE) {
@@ -235,16 +233,6 @@ async function handleGPS(position) {
     currentUser.lng = longitude;
     updateUserMarker(currentUser);
     await uploadMyCurrentLocation();
-}
-
-function printGPSDebug(data) {
-    const box = document.getElementById("gps-debug");
-    if (!box) return;
-    box.innerHTML = `
-        <strong>GPS Debug Info</strong><br>
-        Lat: ${data.latitude.toFixed(4)} / Lng: ${data.longitude.toFixed(4)}<br>
-        Acc: ${data.accuracy.toFixed(2)} m / Dist: ${data.distance.toFixed(2)} m<br>
-    `;
 }
 
 function createArtworkMarker() {
@@ -279,11 +267,6 @@ function createArtworkMarker() {
             activateAr(item)
         );
     });
-}
-
-function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 async function activateAr(item) {
