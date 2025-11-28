@@ -132,7 +132,7 @@ const MAP_STYLE = [
 const TARGET_ZOOM_LEVEL = 20; // 실제로 적용할 줌 레벨
 const MIN_ZOOM_LEVEL = 17;
 const GALLERY_SCALE = 2;
-const IS_SERVER_ON = true; // 서버 못쓰면 false 켜있으면 true
+const IS_SERVER_ON = false; // DB 사용: true, JSON 사용: false
 const USE_MOCK = false; // GPS 모킹 테스트 모드 (true, false)
 let IS_GPS_INITIALIZED = false;
 const VALID_GPS_DISTANCE = 10; // 업데이트할만한 이전, 현재 GPS 거리 차이 기준
@@ -175,6 +175,16 @@ if (place === "home") {
   GALLERY_BOUNDS = {
     SW: {lat: 36.6405331, lng: 127.4400923},
     NE: {lat: 36.6406769, lng: 127.4402677}
+  };
+} else if (place === "gumi"){
+  console.log(`설정된 장소는 구미입니다.`);
+  MUSEUM_BOUNDS = {
+    SW: {lat: 36.1498519, lng: 128.3317133 },
+    NE: {lat: 36.1511690, lng: 128.3331801 }
+  };
+  GALLERY_BOUNDS = {
+    SW: {lat: 36.1503261, lng: 128.3322773 },
+    NE: {lat: 36.1504699, lng: 128.3324527 }
   };
 } else {
   console.log(`설정된 장소는 을숙도입니다.`);

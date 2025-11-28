@@ -35,18 +35,41 @@ const S3_JSON_URL = "https://plinqer-dev.s3.ap-northeast-2.amazonaws.com/neighbo
 
 async function uploadMyCurrentLocationByS3() {
     try {
-        const res = await fetch(S3_JSON_URL);
-        let json = await res.json();
-        if (!json.users) json.users = {};
-        json.users[currentUser.id] = {
+        const res = await fetch(S3_JSON_URL + "?cache=" + Date.now());
+        let data = await res.json();
+
+        const users = Array.isArray(data)
+            ? Object.fromEntries(data.map(u => [u.id, u]))
+            : (data.users || {});
+
+        const now = Date.now();
+        const ONE_MINUTE = 60 * 1000;
+
+        // ⭐ 1분 지난 오래된 데이터 삭제
+        for (const [id, u] of Object.entries(users)) {
+            if (now - Number(u.timestamp) > ONE_MINUTE) {
+                delete users[id];
+            }
+        }
+
+        // ⭐ 내 위치 저장
+        users[currentUser.id] = {
             lat: currentUser.lat,
             lng: currentUser.lng,
-            timestamp: Date.now()
+            timestamp: now
         };
-        await fetch(S3_JSON_URL, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify(json)});
-        console.log("S3에 위치 업로드 성공");
+
+        // ⭐ 다시 업로드 (작은 JSON)
+        await fetch(S3_JSON_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ users })
+        });
+
+        console.log("내 위치 업로드 + 오래된 데이터 정리 완료");
+
     } catch (err) {
-        console.error("S3 위치 업로드 실패", err);
+        console.error("업로드 실패:", err);
     }
 }
 
@@ -145,7 +168,6 @@ async function updateUsersLocationByS3() {
         console.error("S3 기반 유저 위치 조회 실패:", err);
     }
 }
-
 
 // APIs
 async function uploadMyCurrentLocation() {
